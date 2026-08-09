@@ -4,6 +4,7 @@ import os
 import time
 import threading
 import queue
+from collections import deque
 
 import pyttsx3
 import mediapipe as mp
@@ -13,7 +14,32 @@ from mediapipe.tasks.python import vision
 
 
 # ============================================================
-# CONFIGURATION
+# REHAB AI - SQUAT MVP
+# ============================================================
+#
+# IMPORTANT:
+# This is a hackathon prototype.
+#
+# The exercise thresholds below are demonstration rules.
+# They are NOT clinically validated rehabilitation advice.
+#
+# The system:
+# 1. Opens the webcam
+# 2. Detects the human pose locally
+# 3. Finds both knee angles
+# 4. Calibrates the user's standing position
+# 5. Detects squat movement
+# 6. Checks squat depth
+# 7. Checks left/right knee symmetry
+# 8. Counts repetitions
+# 9. Gives visual + voice feedback
+#
+# Raw video is NOT saved.
+# ============================================================
+
+
+# ============================================================
+# 1. CONFIGURATION
 # ============================================================
 
 MODEL_PATH = os.path.join(
@@ -23,45 +49,91 @@ MODEL_PATH = os.path.join(
 
 CAMERA_INDEX = 0
 
-# Prototype thresholds.
-# These are NOT clinical prescriptions.
-STANDING_ANGLE = 160
-BOTTOM_ANGLE = 120
-MAX_ASYMMETRY = 20
+
+# ------------------------------------------------------------
+# CALIBRATION
+# ------------------------------------------------------------
+
+# Number of good frames used to calculate standing baseline.
+CALIBRATION_FRAMES = 60
+
+
+# ------------------------------------------------------------
+# SQUAT MOVEMENT THRESHOLDS
+# ------------------------------------------------------------
+
+# How much the knee angle must decrease from standing
+# before we consider the person to have started squatting.
+START_FLEXION = 10
+
+
+# How much the knee must bend from the standing baseline
+# before we consider it a real squat bottom.
+TARGET_FLEXION = 45
+
+
+# If the person has started a squat but has not reached
+# TARGET_FLEXION, we give "Bend deeper".
+MINIMUM_BOTTOM_FLEXION = 25
+
+
+# ------------------------------------------------------------
+# LEFT / RIGHT SYMMETRY
+# ------------------------------------------------------------
+
+MAX_KNEE_ASYMMETRY = 15
+
+
+# ------------------------------------------------------------
+# LANDMARK CONFIDENCE
+# ------------------------------------------------------------
 
 MIN_VISIBILITY = 0.5
 
-# Minimum time before repeating the same voice instruction.
+
+# ------------------------------------------------------------
+# VOICE
+# ------------------------------------------------------------
+
 VOICE_COOLDOWN = 3.0
 
 
 # ============================================================
-# CHECK MODEL
+# 2. CHECK MODEL
 # ============================================================
 
 if not os.path.exists(MODEL_PATH):
 
     print()
-    print("ERROR: Pose model not found.")
+    print("==============================================")
+    print("ERROR: POSE MODEL NOT FOUND")
+    print("==============================================")
     print()
-    print("Expected file:")
+    print("Expected:")
     print(MODEL_PATH)
     print()
-    print("Folder structure should be:")
+    print("Your project should look like:")
+    print()
     print("rehab_ai/")
-    print("    main.py")
-    print("    models/")
-    print("        pose_landmarker_full.task")
+    print("│")
+    print("├── main.py")
+    print("│")
+    print("├── models/")
+    print("│   └── pose_landmarker_full.task")
+    print("│")
+    print("└── venv/")
     print()
 
     raise SystemExit
 
 
 # ============================================================
-# VOICE SYSTEM
+# 3. VOICE SYSTEM
 # ============================================================
 
 voice_queue = queue.Queue()
+
+voice_available = False
 
 try:
 
@@ -79,27 +151,20 @@ try:
 
     voice_available = True
 
-    print("Voice engine initialized.")
+    print("Voice system: READY")
 
 except Exception as error:
 
-    print(
-        "WARNING: Voice engine could not start."
-    )
+    print("Voice system: DISABLED")
 
-    print(error)
+    print("Reason:", error)
 
-    voice_available = False
 
+# ------------------------------------------------------------
+# VOICE WORKER
+# ------------------------------------------------------------
 
 def voice_worker():
-
-    """
-    One dedicated worker handles all speech.
-
-    This prevents multiple speech threads
-    from fighting with each other.
-    """
 
     while True:
 
@@ -131,16 +196,14 @@ def voice_worker():
 
 if voice_available:
 
-    voice_thread = threading.Thread(
+    threading.Thread(
         target=voice_worker,
         daemon=True
-    )
-
-    voice_thread.start()
+    ).start()
 
 
 # ============================================================
-# VOICE CONTROL
+# 4. VOICE CONTROL
 # ============================================================
 
 last_spoken_message = ""
@@ -149,10 +212,6 @@ last_spoken_time = 0
 
 
 def speak(message):
-
-    """
-    Put a message into the voice queue.
-    """
 
     if not voice_available:
 
@@ -166,11 +225,6 @@ def speak(message):
 
 
 def speak_if_needed(message):
-
-    """
-    Prevent the same instruction from
-    being spoken continuously.
-    """
 
     global last_spoken_message
     global last_spoken_time
@@ -204,19 +258,21 @@ def speak_if_needed(message):
 
 
 # ============================================================
-# ANGLE CALCULATION
+# 5. ANGLE CALCULATION
 # ============================================================
 
 def calculate_angle(a, b, c):
 
     """
-    Calculate angle at point B.
+    Calculate the angle at point B.
 
-        A
-         \
-          B
-           \
-            C
+             A
+              \
+               B
+                \
+                 C
+
+    Returns angle in degrees.
     """
 
     angle = math.degrees(
@@ -241,7 +297,7 @@ def calculate_angle(a, b, c):
 
 
 # ============================================================
-# LANDMARK VISIBILITY
+# 6. LANDMARK QUALITY CHECK
 # ============================================================
 
 def landmark_is_visible(landmark):
@@ -266,7 +322,7 @@ def landmark_is_visible(landmark):
 
 
 # ============================================================
-# DRAW LANDMARK
+# 7. DRAW LANDMARK
 # ============================================================
 
 def draw_landmark(
@@ -306,7 +362,7 @@ def draw_landmark(
 
 
 # ============================================================
-# DRAW SKELETON CONNECTION
+# 8. DRAW CONNECTION
 # ============================================================
 
 def draw_connection(
@@ -342,7 +398,7 @@ def draw_connection(
 
 
 # ============================================================
-# CREATE MEDIAPIPE POSE LANDMARKER
+# 9. CREATE MEDIAPIPE POSE LANDMARKER
 # ============================================================
 
 base_options = python.BaseOptions(
@@ -350,8 +406,10 @@ base_options = python.BaseOptions(
 )
 
 options = vision.PoseLandmarkerOptions(
+
     base_options=base_options,
 
+    # IMAGE mode is intentionally used for this MVP.
     running_mode=vision.RunningMode.IMAGE,
 
     num_poses=1,
@@ -369,7 +427,7 @@ landmarker = vision.PoseLandmarker.create_from_options(
 
 
 # ============================================================
-# OPEN CAMERA
+# 10. OPEN CAMERA
 # ============================================================
 
 camera = cv2.VideoCapture(
@@ -378,9 +436,9 @@ camera = cv2.VideoCapture(
 
 if not camera.isOpened():
 
-    print(
-        "ERROR: Could not open camera."
-    )
+    print()
+    print("ERROR: Could not open camera.")
+    print()
 
     landmarker.close()
 
@@ -399,50 +457,7 @@ camera.set(
 
 
 # ============================================================
-# STARTUP
-# ============================================================
-
-print()
-print("========================================")
-print("          REHAB AI MVP")
-print("========================================")
-print()
-print("Camera : READY")
-print("Pose AI: READY")
-
-if voice_available:
-
-    print("Voice  : READY")
-
-else:
-
-    print("Voice  : DISABLED")
-
-print()
-print("Instructions:")
-print("1. Stand where your full body is visible.")
-print("2. Face the camera.")
-print("3. Perform slow squats.")
-print("4. Listen for corrections.")
-print("5. Press Q to stop.")
-print()
-
-
-# ============================================================
-# STARTUP VOICE TEST
-# ============================================================
-
-if voice_available:
-
-    time.sleep(1)
-
-    speak(
-        "Rehab AI is ready. Begin your exercise."
-    )
-
-
-# ============================================================
-# SESSION VARIABLES
+# 11. SESSION VARIABLES
 # ============================================================
 
 rep_count = 0
@@ -451,48 +466,151 @@ correct_reps = 0
 
 incorrect_reps = 0
 
-current_state = "STANDING"
+
+# ------------------------------------------------------------
+# EXERCISE STATE
+# ------------------------------------------------------------
+
+state = "CALIBRATING"
+
+
+# Possible states:
+#
+# CALIBRATING
+# STANDING
+# DESCENDING
+# BOTTOM
+# RETURNING
+#
+
+
+# ------------------------------------------------------------
+# REP STATE
+# ------------------------------------------------------------
 
 rep_started = False
+
+rep_reached_bottom = False
 
 rep_good = True
 
 rep_feedback = ""
 
-last_feedback = "READY"
+
+# ------------------------------------------------------------
+# CURRENT ANGLES
+# ------------------------------------------------------------
+
+left_knee_angle = None
+
+right_knee_angle = None
+
+
+# ------------------------------------------------------------
+# BASELINE ANGLES
+# ------------------------------------------------------------
+
+left_baseline = None
+
+right_baseline = None
+
+
+# ------------------------------------------------------------
+# CALIBRATION DATA
+# ------------------------------------------------------------
+
+left_calibration_values = []
+
+right_calibration_values = []
+
+
+# ------------------------------------------------------------
+# ANGLE SMOOTHING
+# ------------------------------------------------------------
+
+left_angle_history = deque(
+    maxlen=7
+)
+
+right_angle_history = deque(
+    maxlen=7
+)
+
+
+# ------------------------------------------------------------
+# FEEDBACK
+# ------------------------------------------------------------
+
+feedback = ""
+
+last_feedback = ""
 
 
 # ============================================================
-# MAIN LOOP
+# 12. START MESSAGE
+# ============================================================
+
+print()
+print("==============================================")
+print("           REHAB AI - SQUAT MVP")
+print("==============================================")
+print()
+print("Camera      : READY")
+print("Pose AI     : READY")
+print(
+    "Voice       :",
+    "READY" if voice_available else "DISABLED"
+)
+print()
+print("IMPORTANT:")
+print("Stand normally for calibration.")
+print()
+print("Then perform slow squats.")
+print()
+print("Press Q to quit.")
+print()
+
+
+if voice_available:
+
+    time.sleep(1)
+
+    speak(
+        "Stand normally. Calibration will begin."
+    )
+
+
+# ============================================================
+# 13. MAIN LOOP
 # ============================================================
 
 while True:
 
-    # --------------------------------------------------------
+    # ========================================================
     # READ CAMERA
-    # --------------------------------------------------------
+    # ========================================================
 
     success, frame = camera.read()
 
     if not success:
 
         print(
-            "ERROR: Could not read camera frame."
+            "ERROR: Could not read camera."
         )
 
         break
 
 
-    # Mirror image.
+    # Mirror the camera.
     frame = cv2.flip(
         frame,
         1
     )
 
 
-    # --------------------------------------------------------
+    # ========================================================
     # CONVERT BGR → RGB
-    # --------------------------------------------------------
+    # ========================================================
 
     rgb_frame = cv2.cvtColor(
         frame,
@@ -500,9 +618,9 @@ while True:
     )
 
 
-    # --------------------------------------------------------
+    # ========================================================
     # CREATE MEDIAPIPE IMAGE
-    # --------------------------------------------------------
+    # ========================================================
 
     mp_image = mp.Image(
         image_format=mp.ImageFormat.SRGB,
@@ -510,9 +628,9 @@ while True:
     )
 
 
-    # --------------------------------------------------------
-    # RUN POSE AI
-    # --------------------------------------------------------
+    # ========================================================
+    # RUN POSE DETECTION
+    # ========================================================
 
     try:
 
@@ -531,20 +649,16 @@ while True:
 
 
     # ========================================================
-    # DEFAULT VALUES
+    # DEFAULT DISPLAY
     # ========================================================
 
-    form_status = "NO PERSON"
+    display_status = "NO PERSON"
 
     feedback = ""
 
-    left_knee_angle = None
-
-    right_knee_angle = None
-
 
     # ========================================================
-    # PERSON DETECTED
+    # PERSON DETECTED?
     # ========================================================
 
     if result.pose_landmarks:
@@ -553,15 +667,19 @@ while True:
 
 
         # ----------------------------------------------------
-        # GET LANDMARKS
+        # IMPORTANT LANDMARKS
         # ----------------------------------------------------
 
         left_hip = landmarks[23]
+
         left_knee = landmarks[25]
+
         left_ankle = landmarks[27]
 
         right_hip = landmarks[24]
+
         right_knee = landmarks[26]
+
         right_ankle = landmarks[28]
 
 
@@ -569,7 +687,7 @@ while True:
         # CHECK VISIBILITY
         # ----------------------------------------------------
 
-        required = [
+        required_landmarks = [
 
             left_hip,
             left_knee,
@@ -581,112 +699,341 @@ while True:
 
         ]
 
+
         all_visible = all(
             landmark_is_visible(x)
-            for x in required
+            for x in required_landmarks
         )
 
 
         if all_visible:
 
-            # ------------------------------------------------
-            # CALCULATE ANGLES
-            # ------------------------------------------------
+            # =================================================
+            # CALCULATE RAW ANGLES
+            # =================================================
 
-            left_knee_angle = calculate_angle(
+            raw_left_angle = calculate_angle(
                 left_hip,
                 left_knee,
                 left_ankle
             )
 
-            right_knee_angle = calculate_angle(
+            raw_right_angle = calculate_angle(
                 right_hip,
                 right_knee,
                 right_ankle
             )
 
 
-            # ------------------------------------------------
-            # AVERAGE ANGLE
-            # ------------------------------------------------
+            # =================================================
+            # SMOOTH ANGLES
+            # =================================================
 
-            average_angle = (
-                left_knee_angle
-                +
-                right_knee_angle
-            ) / 2
+            left_angle_history.append(
+                raw_left_angle
+            )
+
+            right_angle_history.append(
+                raw_right_angle
+            )
 
 
-            # ------------------------------------------------
-            # DETERMINE STATE
-            # ------------------------------------------------
+            left_knee_angle = sum(
+                left_angle_history
+            ) / len(
+                left_angle_history
+            )
 
-            if average_angle > STANDING_ANGLE:
 
-                new_state = "STANDING"
+            right_knee_angle = sum(
+                right_angle_history
+            ) / len(
+                right_angle_history
+            )
 
-            elif average_angle > BOTTOM_ANGLE:
 
-                new_state = "DESCENDING"
+            # =================================================
+            # CALIBRATION
+            # =================================================
+
+            if state == "CALIBRATING":
+
+                left_calibration_values.append(
+                    left_knee_angle
+                )
+
+                right_calibration_values.append(
+                    right_knee_angle
+                )
+
+
+                calibration_count = len(
+                    left_calibration_values
+                )
+
+
+                display_status = (
+                    f"CALIBRATING "
+                    f"{calibration_count}/"
+                    f"{CALIBRATION_FRAMES}"
+                )
+
+                feedback = (
+                    "Stand normally"
+                )
+
+
+                # ---------------------------------------------
+                # FINISH CALIBRATION
+                # ---------------------------------------------
+
+                if (
+                    calibration_count
+                    >=
+                    CALIBRATION_FRAMES
+                ):
+
+                    left_baseline = (
+                        sum(
+                            left_calibration_values
+                        )
+                        /
+                        len(
+                            left_calibration_values
+                        )
+                    )
+
+
+                    right_baseline = (
+                        sum(
+                            right_calibration_values
+                        )
+                        /
+                        len(
+                            right_calibration_values
+                        )
+                    )
+
+
+                    state = "STANDING"
+
+
+                    display_status = "READY"
+
+                    feedback = (
+                        "Calibration complete"
+                    )
+
+
+                    print()
+                    print(
+                        "Calibration complete."
+                    )
+
+                    print(
+                        f"Left baseline: "
+                        f"{left_baseline:.1f}"
+                    )
+
+                    print(
+                        f"Right baseline: "
+                        f"{right_baseline:.1f}"
+                    )
+
+                    print()
+
+
+                    if voice_available:
+
+                        speak(
+                            "Calibration complete. Begin your squat."
+                        )
+
+
+            # =================================================
+            # AFTER CALIBRATION
+            # =================================================
 
             else:
 
-                new_state = "BOTTOM"
+                # ------------------------------------------------
+                # CALCULATE FLEXION FROM PERSONAL BASELINE
+                # ------------------------------------------------
 
-
-            # =================================================
-            # START REP
-            # =================================================
-
-            if (
-                new_state == "DESCENDING"
-                and
-                not rep_started
-            ):
-
-                rep_started = True
-
-                rep_good = True
-
-                rep_feedback = ""
-
-
-            # =================================================
-            # FORM ANALYSIS
-            # =================================================
-
-            if rep_started:
-
-                # ---------------------------------------------
-                # KNEE SYMMETRY
-                # ---------------------------------------------
-
-                angle_difference = abs(
+                left_flexion = (
+                    left_baseline
+                    -
                     left_knee_angle
+                )
+
+
+                right_flexion = (
+                    right_baseline
                     -
                     right_knee_angle
                 )
 
 
-                if angle_difference > MAX_ASYMMETRY:
+                average_flexion = (
+                    left_flexion
+                    +
+                    right_flexion
+                ) / 2
 
-                    rep_good = False
 
-                    rep_feedback = (
-                        "Keep both knees balanced"
+                # =================================================
+                # STANDING
+                # =================================================
+
+                if state == "STANDING":
+
+                    display_status = "READY"
+
+                    feedback = "Ready"
+
+
+                    # Start a new squat only if
+                    # there is REAL movement.
+
+                    if average_flexion >= START_FLEXION:
+
+                        state = "DESCENDING"
+
+                        rep_started = True
+
+                        rep_reached_bottom = False
+
+                        rep_good = True
+
+                        rep_feedback = ""
+
+
+                # =================================================
+                # DESCENDING
+                # =================================================
+
+                elif state == "DESCENDING":
+
+                    display_status = "DESCENDING"
+
+                    feedback = "Keep going"
+
+
+                    # ------------------------------------------------
+                    # CHECK KNEE ASYMMETRY
+                    # ------------------------------------------------
+
+                    angle_difference = abs(
+                        left_knee_angle
+                        -
+                        right_knee_angle
                     )
 
 
-                # ---------------------------------------------
-                # SQUAT DEPTH
-                # ---------------------------------------------
+                    if (
+                        angle_difference
+                        >
+                        MAX_KNEE_ASYMMETRY
+                    ):
 
-                if new_state == "BOTTOM":
+                        rep_good = False
+
+                        rep_feedback = (
+                            "Keep both knees balanced"
+                        )
+
+
+                    # ------------------------------------------------
+                    # DID WE REACH BOTTOM?
+                    # ------------------------------------------------
 
                     if (
-                        left_knee_angle > BOTTOM_ANGLE
-                        or
-                        right_knee_angle > BOTTOM_ANGLE
+                        average_flexion
+                        >=
+                        TARGET_FLEXION
+                    ):
+
+                        state = "BOTTOM"
+
+                        rep_reached_bottom = True
+
+
+                    # ------------------------------------------------
+                    # SIGNIFICANT BEND BUT NOT ENOUGH
+                    # ------------------------------------------------
+
+                    elif (
+                        average_flexion
+                        >=
+                        MINIMUM_BOTTOM_FLEXION
+                    ):
+
+                        display_status = "BEND DEEPER"
+
+                        feedback = (
+                            "Bend deeper"
+                        )
+
+
+                        speak_if_needed(
+                            "Bend deeper"
+                        )
+
+
+                # =================================================
+                # BOTTOM
+                # =================================================
+
+                elif state == "BOTTOM":
+
+                    display_status = "GOOD FORM"
+
+                    feedback = "Good depth"
+
+
+                    # ------------------------------------------------
+                    # CHECK ASYMMETRY
+                    # ------------------------------------------------
+
+                    angle_difference = abs(
+                        left_knee_angle
+                        -
+                        right_knee_angle
+                    )
+
+
+                    if (
+                        angle_difference
+                        >
+                        MAX_KNEE_ASYMMETRY
+                    ):
+
+                        rep_good = False
+
+                        rep_feedback = (
+                            "Keep both knees balanced"
+                        )
+
+                        display_status = "INCORRECT"
+
+                        feedback = (
+                            "Keep both knees balanced"
+                        )
+
+
+                        speak_if_needed(
+                            "Keep both knees balanced"
+                        )
+
+
+                    # ------------------------------------------------
+                    # CHECK DEPTH
+                    # ------------------------------------------------
+
+                    if (
+                        average_flexion
+                        <
+                        MINIMUM_BOTTOM_FLEXION
                     ):
 
                         rep_good = False
@@ -695,85 +1042,120 @@ while True:
                             "Bend deeper"
                         )
 
+                        display_status = "BEND DEEPER"
 
-            # =================================================
-            # LIVE FEEDBACK
-            # =================================================
+                        feedback = (
+                            "Bend deeper"
+                        )
 
-            if rep_started:
 
-                if rep_good:
+                        speak_if_needed(
+                            "Bend deeper"
+                        )
 
-                    form_status = "GOOD FORM"
 
-                    feedback = "Keep going"
+                    # ------------------------------------------------
+                    # START RETURNING
+                    # ------------------------------------------------
 
-                else:
+                    if average_flexion < START_FLEXION:
 
-                    form_status = "INCORRECT"
+                        state = "RETURNING"
 
-                    feedback = rep_feedback
 
-                    speak_if_needed(
-                        feedback
+                # =================================================
+                # RETURNING TO STANDING
+                # =================================================
+
+                elif state == "RETURNING":
+
+                    display_status = "RETURNING"
+
+                    feedback = (
+                        "Return to standing"
                     )
 
 
-            # =================================================
-            # REP COMPLETION
-            # =================================================
+                    # ------------------------------------------------
+                    # CHECK IF STANDING AGAIN
+                    # ------------------------------------------------
 
-            if (
-                rep_started
-                and
-                new_state == "STANDING"
-                and
-                current_state != "STANDING"
-            ):
+                    if average_flexion < 5:
 
-                rep_count += 1
+                        # --------------------------------------------
+                        # ONLY COUNT IF WE ACTUALLY REACHED BOTTOM
+                        # --------------------------------------------
 
+                        if (
+                            rep_started
+                            and
+                            rep_reached_bottom
+                        ):
 
-                if rep_good:
-
-                    correct_reps += 1
-
-                    last_feedback = "Good rep"
-
-                    speak_if_needed(
-                        "Good rep"
-                    )
-
-                else:
-
-                    incorrect_reps += 1
-
-                    last_feedback = rep_feedback
+                            rep_count += 1
 
 
-                rep_started = False
+                            # ----------------------------------------
+                            # CORRECT REP
+                            # ----------------------------------------
 
-                rep_good = True
+                            if rep_good:
 
-                rep_feedback = ""
+                                correct_reps += 1
+
+                                last_feedback = (
+                                    "Good rep"
+                                )
+
+                                display_status = (
+                                    "GOOD REP"
+                                )
+
+                                feedback = (
+                                    "Good rep"
+                                )
 
 
-            # ------------------------------------------------
-            # UPDATE STATE
-            # ------------------------------------------------
-
-            current_state = new_state
+                                speak_if_needed(
+                                    "Good rep"
+                                )
 
 
-            # =================================================
-            # READY MESSAGE
-            # =================================================
+                            # ----------------------------------------
+                            # INCORRECT REP
+                            # ----------------------------------------
 
-            if not rep_started:
+                            else:
 
-                form_status = "READY"
+                                incorrect_reps += 1
 
-                feedback = last_feedback
+                                last_feedback = (
+                                    rep_feedback
+                                )
+
+
+                            print(
+                                f"Rep {rep_count} | "
+                                f"Correct: "
+                                f"{correct_reps} | "
+                                f"Incorrect: "
+                                f"{incorrect_reps}"
+                            )
+
+
+                        # --------------------------------------------
+                        # RESET REP
+                        # --------------------------------------------
+
+                        rep_started = False
+
+                        rep_reached_bottom = False
+
+                        rep_good = True
+
+                        rep_feedback = ""
+
+                        state = "STANDING"
 
 
             # =================================================
@@ -782,31 +1164,37 @@ while True:
 
             connections = [
 
+                # Left arm
                 (11, 13),
                 (13, 15),
 
+                # Right arm
                 (12, 14),
                 (14, 16),
 
+                # Shoulders
                 (11, 12),
 
+                # Torso
                 (11, 23),
                 (12, 24),
-
                 (23, 24),
 
+                # Left leg
                 (23, 25),
                 (25, 27),
 
+                # Right leg
                 (24, 26),
                 (26, 28),
 
+                # Left foot
                 (27, 29),
                 (29, 31),
 
+                # Right foot
                 (28, 30),
                 (30, 32)
-
             ]
 
 
@@ -821,7 +1209,7 @@ while True:
 
 
             # =================================================
-            # LEFT LEG
+            # DRAW LEFT LEG
             # =================================================
 
             draw_landmark(
@@ -847,7 +1235,7 @@ while True:
 
 
             # =================================================
-            # RIGHT LEG
+            # DRAW RIGHT LEG
             # =================================================
 
             draw_landmark(
@@ -879,107 +1267,180 @@ while True:
     cv2.rectangle(
         frame,
         (10, 10),
-        (330, 255),
+        (360, 285),
         (25, 25, 25),
         -1
     )
 
 
-    # --------------------------------------------------------
-    # KNEE ANGLES
-    # --------------------------------------------------------
+    # ========================================================
+    # TITLE
+    # ========================================================
 
-    if left_knee_angle is not None:
+    cv2.putText(
+        frame,
+        "REHAB AI",
+        (20, 35),
+        cv2.FONT_HERSHEY_SIMPLEX,
+        0.65,
+        (255, 255, 255),
+        2
+    )
+
+
+    # ========================================================
+    # KNEE ANGLES
+    # ========================================================
+
+    if (
+        left_knee_angle is not None
+        and
+        right_knee_angle is not None
+    ):
 
         cv2.putText(
             frame,
-            f"Left Knee: {int(left_knee_angle)} deg",
-            (20, 40),
+            f"Left Knee: "
+            f"{int(left_knee_angle)} deg",
+            (20, 65),
             cv2.FONT_HERSHEY_SIMPLEX,
-            0.55,
+            0.52,
             (0, 255, 0),
             2
         )
 
+
         cv2.putText(
             frame,
-            f"Right Knee: {int(right_knee_angle)} deg",
-            (20, 68),
+            f"Right Knee: "
+            f"{int(right_knee_angle)} deg",
+            (20, 92),
             cv2.FONT_HERSHEY_SIMPLEX,
-            0.55,
+            0.52,
             (0, 0, 255),
             2
         )
 
 
-    # --------------------------------------------------------
+        if (
+            left_baseline is not None
+            and
+            right_baseline is not None
+        ):
+
+            left_flexion = (
+                left_baseline
+                -
+                left_knee_angle
+            )
+
+            right_flexion = (
+                right_baseline
+                -
+                right_knee_angle
+            )
+
+            average_flexion = (
+                left_flexion
+                +
+                right_flexion
+            ) / 2
+
+
+            cv2.putText(
+                frame,
+                f"Flexion: "
+                f"{int(average_flexion)} deg",
+                (20, 119),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.52,
+                (255, 255, 255),
+                2
+            )
+
+
+    # ========================================================
     # STATE
-    # --------------------------------------------------------
+    # ========================================================
 
     cv2.putText(
         frame,
-        f"State: {current_state}",
-        (20, 96),
+        f"State: {state}",
+        (20, 147),
         cv2.FONT_HERSHEY_SIMPLEX,
-        0.55,
+        0.52,
         (255, 255, 255),
         2
     )
 
 
-    # --------------------------------------------------------
+    # ========================================================
     # REPS
-    # --------------------------------------------------------
+    # ========================================================
 
     cv2.putText(
         frame,
         f"Reps: {rep_count}",
-        (20, 124),
+        (20, 175),
         cv2.FONT_HERSHEY_SIMPLEX,
-        0.6,
+        0.58,
         (255, 255, 255),
         2
     )
 
 
-    # --------------------------------------------------------
-    # FORM STATUS
-    # --------------------------------------------------------
+    # ========================================================
+    # FORM COLOR
+    # ========================================================
 
-    if form_status == "GOOD FORM":
+    if display_status in [
+        "GOOD FORM",
+        "GOOD REP"
+    ]:
 
         status_color = (0, 255, 0)
 
-    elif form_status == "INCORRECT":
+    elif display_status in [
+        "BEND DEEPER",
+        "INCORRECT"
+    ]:
 
         status_color = (0, 0, 255)
+
+    elif display_status == "CALIBRATING":
+
+        status_color = (0, 255, 255)
 
     else:
 
         status_color = (255, 255, 255)
 
 
+    # ========================================================
+    # STATUS
+    # ========================================================
+
     cv2.putText(
         frame,
-        form_status,
-        (20, 154),
+        display_status,
+        (20, 205),
         cv2.FONT_HERSHEY_SIMPLEX,
-        0.6,
+        0.62,
         status_color,
         2
     )
 
 
-    # --------------------------------------------------------
+    # ========================================================
     # FEEDBACK
-    # --------------------------------------------------------
+    # ========================================================
 
     if feedback:
 
         cv2.putText(
             frame,
             feedback,
-            (20, 184),
+            (20, 233),
             cv2.FONT_HERSHEY_SIMPLEX,
             0.48,
             status_color,
@@ -987,9 +1448,9 @@ while True:
         )
 
 
-    # --------------------------------------------------------
+    # ========================================================
     # SCORE
-    # --------------------------------------------------------
+    # ========================================================
 
     if rep_count > 0:
 
@@ -1007,26 +1468,11 @@ while True:
     cv2.putText(
         frame,
         f"Score: {int(score)}%",
-        (20, 215),
+        (20, 260),
         cv2.FONT_HERSHEY_SIMPLEX,
-        0.55,
+        0.5,
         (255, 255, 255),
         2
-    )
-
-
-    # --------------------------------------------------------
-    # PRIVACY
-    # --------------------------------------------------------
-
-    cv2.putText(
-        frame,
-        "LOCAL AI - VIDEO NOT SAVED",
-        (20, 242),
-        cv2.FONT_HERSHEY_SIMPLEX,
-        0.38,
-        (200, 200, 200),
-        1
     )
 
 
@@ -1035,7 +1481,7 @@ while True:
     # ========================================================
 
     cv2.imshow(
-        "Rehab AI - Privacy First MVP",
+        "Rehab AI - Privacy First",
         frame
     )
 
@@ -1052,7 +1498,7 @@ while True:
 
 
 # ============================================================
-# CLEAN UP
+# 14. CLEANUP
 # ============================================================
 
 camera.release()
@@ -1063,20 +1509,20 @@ landmarker.close()
 
 
 # ============================================================
-# FINAL REPORT
+# 15. FINAL REPORT
 # ============================================================
 
 print()
-print("========================================")
-print("          REHAB AI SESSION")
-print("========================================")
+print("==============================================")
+print("             REHAB AI REPORT")
+print("==============================================")
 
 print(
-    f"Total repetitions   : {rep_count}"
+    f"Total repetitions    : {rep_count}"
 )
 
 print(
-    f"Correct repetitions : {correct_reps}"
+    f"Correct repetitions  : {correct_reps}"
 )
 
 print(
@@ -1093,16 +1539,20 @@ if rep_count > 0:
     ) * 100
 
     print(
-        f"Technique score     : {final_score:.1f}%"
+        f"Technique score      : "
+        f"{final_score:.1f}%"
     )
 
 else:
 
     print(
-        "Technique score     : N/A"
+        "Technique score      : N/A"
     )
 
 
 print()
-print("Raw video was not recorded or saved.")
-print("========================================")
+print(
+    "Raw video was not recorded or saved."
+)
+
+print("==============================================")
