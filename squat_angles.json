@@ -1,0 +1,26 @@
+{
+  "8026939-uhd_2160_4096_25fps.mp4": [
+    {
+      "frame": 495,
+      "left_knee_angle": 164.8,
+      "right_knee_angle": 177.89,
+      "torso_angle": 7.47
+    }
+  ],
+  "4158861-hd_1080_1920_24fps.mp4": [
+    {
+      "frame": 52,
+      "left_knee_angle": 172.32,
+      "right_knee_angle": 169.6,
+      "torso_angle": 10.4
+    }
+  ],
+  "4838220-uhd_2160_3840_24fps.mp4": [
+    {
+      "frame": 304,
+      "left_knee_angle": 104.53,
+      "right_knee_angle": 122.72,
+      "torso_angle": 33.46
+    }
+  ]
+}
