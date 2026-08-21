@@ -62,27 +62,48 @@ for exercise_name in os.listdir(base_input_folder):
                 # WARNING: These are the landmarks for legs. 
                 # This logic is useless for wall push-ups.
                
+                # Extract all necessary landmarks
+                l_shoulder = [landmarks[11].x, landmarks[11].y]
+                r_shoulder = [landmarks[12].x, landmarks[12].y]
+                l_elbow    = [landmarks[13].x, landmarks[13].y]
+                r_elbow    = [landmarks[14].x, landmarks[14].y]
+                l_wrist    = [landmarks[15].x, landmarks[15].y]
+                r_wrist    = [landmarks[16].x, landmarks[16].y]
+                l_hip      = [landmarks[23].x, landmarks[23].y]
+                r_hip      = [landmarks[24].x, landmarks[24].y]
+                l_knee     = [landmarks[25].x, landmarks[25].y]
+                r_knee     = [landmarks[26].x, landmarks[26].y]
+                l_ankle    = [landmarks[27].x, landmarks[27].y]
+                r_ankle    = [landmarks[28].x, landmarks[28].y]
 
-        l_hip = [landmarks[23].x, landmarks[23].y]
-        l_knee = [landmarks[25].x, landmarks[25].y]
-        l_ankle = [landmarks[27].x, landmarks[27].y]
-        r_hip = [landmarks[24].x, landmarks[24].y]
-        r_knee = [landmarks[26].x, landmarks[26].y]
-        r_ankle = [landmarks[28].x, landmarks[28].y]
+                l_up = [l_hip[0], l_hip[1] - 1]
+                r_up = [r_hip[0], r_hip[1] - 1]
 
-        # Define torso variables BEFORE the append block
-        l_sh = [landmarks[11].x, landmarks[11].y]
-        r_sh = [landmarks[12].x, landmarks[12].y]
-        l_up = [l_hip[0], l_hip[1] - 1]
-        r_up = [r_hip[0], r_hip[1] - 1]
+                frame_dict = {"frame": frame_count}
 
-        # Append all angles at once
-        frame_data.append({
-            "frame": frame_count,
-            "left_knee_angle": calculate_angle(l_hip, l_knee, l_ankle),
-            "right_knee_angle": calculate_angle(r_hip, r_knee, r_ankle),
-            "torso_angle": round((calculate_angle(l_sh, l_hip, l_up) + calculate_angle(r_sh, r_hip, r_up)) / 2, 2)
-        })
+                # Format output keys based on exercise type
+                clean_name = exercise_name.lower().replace(" ", "_")
+
+                if clean_name == "wall_push_up":
+                    frame_dict["left_elbow_angle"] = calculate_angle(l_shoulder, l_elbow, l_wrist)
+                    frame_dict["right_elbow_angle"] = calculate_angle(r_shoulder, r_elbow, r_wrist)
+
+                elif clean_name == "windwheel_toe_touch":
+                    frame_dict["left_hip_angle"] = calculate_angle(l_shoulder, l_hip, l_knee)
+                    frame_dict["right_hip_angle"] = calculate_angle(r_shoulder, r_hip, r_knee)
+
+                elif clean_name == "squat":
+                    frame_dict["left_knee_angle"] = calculate_angle(l_hip, l_knee, l_ankle)
+                    frame_dict["right_knee_angle"] = calculate_angle(r_hip, r_knee, r_ankle)
+                    frame_dict["torso_angle"] = round((calculate_angle(l_shoulder, l_hip, l_up) + calculate_angle(r_shoulder, r_hip, r_up)) / 2, 2)
+
+                elif clean_name in ["lunges", "leg_extension"]:
+                    frame_dict["left_knee_angle"] = calculate_angle(l_hip, l_knee, l_ankle)
+                    frame_dict["right_knee_angle"] = calculate_angle(r_hip, r_knee, r_ankle)
+
+                frame_data.append(frame_dict)
+ 
+        
         cap.release()
         results_summary[video_name] = frame_data
         print(f"Finished {video_name} ({frame_count} frames).")
