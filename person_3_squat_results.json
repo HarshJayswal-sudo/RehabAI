@@ -1,0 +1,90 @@
+{
+    "8026939-uhd_2160_4096_25fps.mp4": {
+        "exercise": "squat",
+        "repetitions": 5,
+        "average_score": 100.0,
+        "average_rom": 111.5,
+        "repetitions_detail": [
+            {
+                "rep": 1,
+                "score": 100,
+                "lowest_angle": 43.8,
+                "rom": 115.7,
+                "errors": [],
+                "feedback": "Good form. Keep going!"
+            },
+            {
+                "rep": 2,
+                "score": 100,
+                "lowest_angle": 40.5,
+                "rom": 113.0,
+                "errors": [],
+                "feedback": "Good form. Keep going!"
+            },
+            {
+                "rep": 3,
+                "score": 100,
+                "lowest_angle": 45.3,
+                "rom": 101.9,
+                "errors": [],
+                "feedback": "Good form. Keep going!"
+            },
+            {
+                "rep": 4,
+                "score": 100,
+                "lowest_angle": 41.9,
+                "rom": 116.3,
+                "errors": [],
+                "feedback": "Good form. Keep going!"
+            },
+            {
+                "rep": 5,
+                "score": 100,
+                "lowest_angle": 41.9,
+                "rom": 110.7,
+                "errors": [],
+                "feedback": "Good form. Keep going!"
+            }
+        ]
+    },
+    "4158861-hd_1080_1920_24fps.mp4": {
+        "exercise": "squat",
+        "repetitions": 1,
+        "average_score": 100.0,
+        "average_rom": 98.3,
+        "repetitions_detail": [
+            {
+                "rep": 1,
+                "score": 100,
+                "lowest_angle": 45.6,
+                "rom": 98.3,
+                "errors": [],
+                "feedback": "Good form. Keep going!"
+            }
+        ]
+    },
+    "4838220-uhd_2160_3840_24fps.mp4": {
+        "exercise": "squat",
+        "repetitions": 2,
+        "average_score": 100.0,
+        "average_rom": 71.6,
+        "repetitions_detail": [
+            {
+                "rep": 1,
+                "score": 100,
+                "lowest_angle": 73.0,
+                "rom": 52.1,
+                "errors": [],
+                "feedback": "Good form. Keep going!"
+            },
+            {
+                "rep": 2,
+                "score": 100,
+                "lowest_angle": 67.2,
+                "rom": 91.1,
+                "errors": [],
+                "feedback": "Good form. Keep going!"
+            }
+        ]
+    }
+}
