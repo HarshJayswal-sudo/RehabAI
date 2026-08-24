@@ -88,7 +88,7 @@ for exercise_name in os.listdir(base_input_folder):
                     frame_dict["left_elbow_angle"] = calculate_angle(l_shoulder, l_elbow, l_wrist)
                     frame_dict["right_elbow_angle"] = calculate_angle(r_shoulder, r_elbow, r_wrist)
 
-                elif clean_name == "windwheel_toe_touch":
+                elif clean_name == "wind_will_toe_touch":
                     frame_dict["left_hip_angle"] = calculate_angle(l_shoulder, l_hip, l_knee)
                     frame_dict["right_hip_angle"] = calculate_angle(r_shoulder, r_hip, r_knee)
 
