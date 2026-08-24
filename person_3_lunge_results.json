@@ -1,0 +1,106 @@
+{
+    "lunges_vedio.mp4": {
+        "exercise": "bodyweight_lunge",
+        "repetitions": 1,
+        "average_score": 100.0,
+        "average_rom": 165.3,
+        "repetitions_detail": [
+            {
+                "rep": 1,
+                "score": 100,
+                "lowest_angle": 14.7,
+                "rom": 165.3,
+                "errors": [],
+                "feedback": "Excellent lunge depth and form!"
+            }
+        ]
+    },
+    "lunges 3.mp4": {
+        "exercise": "bodyweight_lunge",
+        "repetitions": 2,
+        "average_score": 100.0,
+        "average_rom": 134.3,
+        "repetitions_detail": [
+            {
+                "rep": 1,
+                "score": 100,
+                "lowest_angle": 54.6,
+                "rom": 125.3,
+                "errors": [],
+                "feedback": "Excellent lunge depth and form!"
+            },
+            {
+                "rep": 2,
+                "score": 100,
+                "lowest_angle": 36.8,
+                "rom": 143.2,
+                "errors": [],
+                "feedback": "Excellent lunge depth and form!"
+            }
+        ]
+    },
+    "7691057-uhd_4096_2160_25fps.mp4": {
+        "exercise": "bodyweight_lunge",
+        "repetitions": 7,
+        "average_score": 100.0,
+        "average_rom": 135.1,
+        "repetitions_detail": [
+            {
+                "rep": 1,
+                "score": 100,
+                "lowest_angle": 52.0,
+                "rom": 128.0,
+                "errors": [],
+                "feedback": "Excellent lunge depth and form!"
+            },
+            {
+                "rep": 2,
+                "score": 100,
+                "lowest_angle": 90.1,
+                "rom": 89.9,
+                "errors": [],
+                "feedback": "Excellent lunge depth and form!"
+            },
+            {
+                "rep": 3,
+                "score": 100,
+                "lowest_angle": 83.8,
+                "rom": 96.2,
+                "errors": [],
+                "feedback": "Excellent lunge depth and form!"
+            },
+            {
+                "rep": 4,
+                "score": 100,
+                "lowest_angle": 77.0,
+                "rom": 103.0,
+                "errors": [],
+                "feedback": "Excellent lunge depth and form!"
+            },
+            {
+                "rep": 5,
+                "score": 100,
+                "lowest_angle": 8.2,
+                "rom": 171.8,
+                "errors": [],
+                "feedback": "Excellent lunge depth and form!"
+            },
+            {
+                "rep": 6,
+                "score": 100,
+                "lowest_angle": 1.1,
+                "rom": 178.9,
+                "errors": [],
+                "feedback": "Excellent lunge depth and form!"
+            },
+            {
+                "rep": 7,
+                "score": 100,
+                "lowest_angle": 1.8,
+                "rom": 178.2,
+                "errors": [],
+                "feedback": "Excellent lunge depth and form!"
+            }
+        ]
+    }
+}
