@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, Home, LayoutDashboard, Activity, Dumbbell, History as HistoryIcon, Stethoscope, LogOut, Crown, Check } from 'lucide-react';
+import { User, Home, LayoutDashboard, Activity, Dumbbell, History as HistoryIcon, Settings, LogOut, Crown } from 'lucide-react';
 import iconImg from '../../assets/images/icon.png';
 import { useAuth } from '../../context/AuthContext';
 
@@ -12,8 +12,8 @@ const Navbar = ({ currentView, navigateTo }) => {
     <div style={{ position: 'fixed', top: '25px', left: 0, right: 0, zIndex: 100, display: 'flex', justifyContent: 'center', pointerEvents: 'none' }}>
       <header style={{ 
         width: '90%', 
-        maxWidth: '1160px',
-        backgroundColor: 'rgba(255, 255, 255, 0.88)', 
+        maxWidth: '1120px',
+        backgroundColor: 'rgba(255, 255, 255, 0.85)', 
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
         borderRadius: '50px',
@@ -36,14 +36,14 @@ const Navbar = ({ currentView, navigateTo }) => {
         {/* Main Navigation Links */}
         <nav style={{ height: '100%', display: 'flex', alignItems: 'center' }}>
           <ul style={{ 
-            listStyle: 'none', display: 'flex', margin: 0, padding: 0, gap: '24px', height: '100%', alignItems: 'center'
+            listStyle: 'none', display: 'flex', margin: 0, padding: 0, gap: '26px', height: '100%', alignItems: 'center'
           }}>
             {[
               { id: 'landing', label: 'Home', icon: <Home size={16} strokeWidth={2.5} /> },
               { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={16} strokeWidth={2.5} /> },
               { id: 'exercises', label: 'Exercises', icon: <Dumbbell size={16} strokeWidth={2.5} /> },
               { id: 'history', label: 'History', icon: <HistoryIcon size={16} strokeWidth={2.5} /> },
-              { id: 'doctor', label: 'Clinician Portal', icon: <Stethoscope size={16} strokeWidth={2.5} /> },
+              { id: 'session', label: 'Live Session', icon: <Activity size={16} strokeWidth={2.5} /> },
             ].map(item => {
               const isActive = currentView === item.id;
               return (
@@ -78,7 +78,7 @@ const Navbar = ({ currentView, navigateTo }) => {
           </ul>
         </nav>
         
-        {/* Actions & Profile */}
+        {/* Actions & Profile Dropdown */}
         <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
           <button 
             className="btn btn-primary" 
@@ -90,7 +90,7 @@ const Navbar = ({ currentView, navigateTo }) => {
           
           <div style={{ width: '1px', height: '24px', backgroundColor: 'rgba(0,0,0,0.1)' }}></div>
           
-          {/* Profile Dropdown */}
+          {/* Functional Profile Avatar & Dropdown */}
           <div style={{ position: 'relative' }}>
             <div 
               style={{ 
@@ -114,6 +114,7 @@ const Navbar = ({ currentView, navigateTo }) => {
               <User size={18} strokeWidth={2.5} />
             </div>
 
+            {/* Dropdown Menu */}
             <AnimatePresence>
               {isProfileOpen && (
                 <motion.div
@@ -140,7 +141,7 @@ const Navbar = ({ currentView, navigateTo }) => {
                     </div>
                     <div>
                       <h4 style={{ margin: 0, fontSize: '16px', fontWeight: 800, color: '#111' }}>
-                        {user?.name || 'Alex Johnson'}
+                        {user?.name || 'Patient Demo'}
                       </h4>
                       <p style={{ margin: 0, fontSize: '12px', color: '#64748B', display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
                         <Crown size={13} color="#F59E0B" /> Active Patient
@@ -153,16 +154,8 @@ const Navbar = ({ currentView, navigateTo }) => {
                       style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', background: 'transparent', border: 'none', borderRadius: '12px', cursor: 'pointer', fontSize: '13px', fontWeight: 600, color: '#475569', transition: 'all 0.2s' }} 
                       onClick={() => { setIsProfileOpen(false); navigateTo('dashboard'); }}
                     >
-                      <LayoutDashboard size={16} /> Patient Dashboard
+                      <LayoutDashboard size={16} /> Dashboard
                     </button>
-
-                    <button 
-                      style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', background: 'transparent', border: 'none', borderRadius: '12px', cursor: 'pointer', fontSize: '13px', fontWeight: 600, color: '#475569', transition: 'all 0.2s' }} 
-                      onClick={() => { setIsProfileOpen(false); navigateTo('doctor'); }}
-                    >
-                      <Stethoscope size={16} /> Clinician Portal
-                    </button>
-
                     <button 
                       style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', background: 'transparent', border: 'none', borderRadius: '12px', cursor: 'pointer', fontSize: '13px', fontWeight: 600, color: '#475569', transition: 'all 0.2s' }} 
                       onClick={() => { setIsProfileOpen(false); navigateTo('history'); }}
@@ -201,4 +194,3 @@ const Navbar = ({ currentView, navigateTo }) => {
 };
 
 export default Navbar;
-

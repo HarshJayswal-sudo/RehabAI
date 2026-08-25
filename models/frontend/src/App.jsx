@@ -5,7 +5,6 @@ import Exercises from './pages/Exercises';
 import Session from './pages/Session';
 import Summary from './pages/Summary';
 import History from './pages/History';
-import DoctorPortal from './pages/DoctorPortal';
 import Auth from './pages/Auth';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
@@ -56,13 +55,12 @@ function AppContent() {
   const finishSession = (results) => {
     setSessionResults(results);
 
-    // Save to persistent history log
+    // Save to history log
     const newEntry = {
       id: Date.now(),
       date: new Date().toISOString().split('T')[0],
       exercise: results.exercise || selectedExercise.name,
       exerciseId: results.exerciseId || selectedExercise.id,
-      numericId: results.numericId || selectedExercise.numericId || 1,
       reps: results.rep || 0,
       formScore: results.formScore || 95,
       symmetry: results.symmetry || 94,
@@ -116,12 +114,6 @@ function AppContent() {
           />
         )}
 
-        {currentView === 'doctor' && (
-          <DoctorPortal 
-            onSwitchToPatientView={() => navigateTo('dashboard')}
-          />
-        )}
-
         {currentView === 'session' && (
           <Session 
             selectedExercise={selectedExercise}
@@ -153,4 +145,3 @@ function App() {
 }
 
 export default App;
-
