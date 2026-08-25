@@ -22,3 +22,7 @@ pyttsx3==2.99
 pywin32==312
 six==1.17.0
 sounddevice==0.5.5
+fastapi>=0.115.0
+uvicorn[standard]>=0.30.0
+websockets>=13.0
+python-multipart>=0.0.9

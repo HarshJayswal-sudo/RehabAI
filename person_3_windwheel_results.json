@@ -1,0 +1,82 @@
+{
+    "wind will toe touch.mp4": {
+        "exercise": "windwheel_toe_touch",
+        "repetitions": 1,
+        "average_score": 100.0,
+        "average_rom": 59.05,
+        "repetitions_detail": [
+            {
+                "rep": 1,
+                "score": 100,
+                "lowest_angle": 89.61,
+                "rom": 59.05,
+                "errors": [],
+                "feedback": "Great hip hinge and flexibility!"
+            }
+        ]
+    },
+    "wind will toe touch 3.mp4": {
+        "exercise": "windwheel_toe_touch",
+        "repetitions": 4,
+        "average_score": 100.0,
+        "average_rom": 98.9025,
+        "repetitions_detail": [
+            {
+                "rep": 1,
+                "score": 100,
+                "lowest_angle": 11.03,
+                "rom": 71.74,
+                "errors": [],
+                "feedback": "Great hip hinge and flexibility!"
+            },
+            {
+                "rep": 2,
+                "score": 100,
+                "lowest_angle": 0.47,
+                "rom": 147.61,
+                "errors": [],
+                "feedback": "Great hip hinge and flexibility!"
+            },
+            {
+                "rep": 3,
+                "score": 100,
+                "lowest_angle": 3.45,
+                "rom": 144.69,
+                "errors": [],
+                "feedback": "Great hip hinge and flexibility!"
+            },
+            {
+                "rep": 4,
+                "score": 100,
+                "lowest_angle": 58.56,
+                "rom": 31.569999999999993,
+                "errors": [],
+                "feedback": "Great hip hinge and flexibility!"
+            }
+        ]
+    },
+    "wind will toe touch 2.mp4": {
+        "exercise": "windwheel_toe_touch",
+        "repetitions": 2,
+        "average_score": 100.0,
+        "average_rom": 83.945,
+        "repetitions_detail": [
+            {
+                "rep": 1,
+                "score": 100,
+                "lowest_angle": 7.32,
+                "rom": 88.93,
+                "errors": [],
+                "feedback": "Great hip hinge and flexibility!"
+            },
+            {
+                "rep": 2,
+                "score": 100,
+                "lowest_angle": 66.515,
+                "rom": 78.96,
+                "errors": [],
+                "feedback": "Great hip hinge and flexibility!"
+            }
+        ]
+    }
+}

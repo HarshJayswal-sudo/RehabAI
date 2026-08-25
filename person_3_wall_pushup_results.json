@@ -1,0 +1,66 @@
+{
+    " wall push up 2.mp4": {
+        "exercise": "wall_pushup",
+        "repetitions": 3,
+        "average_score": 100.0,
+        "average_rom": 62.096666666666685,
+        "repetitions_detail": [
+            {
+                "rep": 1,
+                "score": 100,
+                "lowest_angle": 93.38499999999999,
+                "rom": 61.10000000000002,
+                "errors": [],
+                "feedback": "Great depth. Perfect push-up!"
+            },
+            {
+                "rep": 2,
+                "score": 100,
+                "lowest_angle": 89.69999999999999,
+                "rom": 63.22000000000003,
+                "errors": [],
+                "feedback": "Great depth. Perfect push-up!"
+            },
+            {
+                "rep": 3,
+                "score": 100,
+                "lowest_angle": 88.95500000000001,
+                "rom": 61.97,
+                "errors": [],
+                "feedback": "Great depth. Perfect push-up!"
+            }
+        ]
+    },
+    "wall push up 3.mp4": {
+        "exercise": "wall_pushup",
+        "repetitions": 1,
+        "average_score": 100.0,
+        "average_rom": 94.02,
+        "repetitions_detail": [
+            {
+                "rep": 1,
+                "score": 100,
+                "lowest_angle": 57.17,
+                "rom": 94.02,
+                "errors": [],
+                "feedback": "Great depth. Perfect push-up!"
+            }
+        ]
+    },
+    "wall push up.mp4": {
+        "exercise": "wall_pushup",
+        "repetitions": 1,
+        "average_score": 100.0,
+        "average_rom": 103.14500000000001,
+        "repetitions_detail": [
+            {
+                "rep": 1,
+                "score": 100,
+                "lowest_angle": 49.88,
+                "rom": 103.14500000000001,
+                "errors": [],
+                "feedback": "Great depth. Perfect push-up!"
+            }
+        ]
+    }
+}

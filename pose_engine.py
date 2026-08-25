@@ -18,6 +18,8 @@ import numpy as np
 # MediaPipe Pose landmark indices we use (both sides of the body)
 LM = {
     "l_shoulder": 11, "r_shoulder": 12,
+    "l_elbow": 13, "r_elbow": 14,
+    "l_wrist": 15, "r_wrist": 16,
     "l_hip": 23, "r_hip": 24,
     "l_knee": 25, "r_knee": 26,
     "l_ankle": 27, "r_ankle": 28,
@@ -61,6 +63,8 @@ class PoseEngine:
             return [p.x, p.y], p.visibility
 
         (l_sh, v_l_sh), (r_sh, v_r_sh) = pt("l_shoulder"), pt("r_shoulder")
+        (l_elbow, v_l_elbow), (r_elbow, v_r_elbow) = pt("l_elbow"), pt("r_elbow")
+        (l_wrist, v_l_wrist), (r_wrist, v_r_wrist) = pt("l_wrist"), pt("r_wrist")
         (l_hip, v_l_hip), (r_hip, v_r_hip) = pt("l_hip"), pt("r_hip")
         (l_knee, v_l_knee), (r_knee, v_r_knee) = pt("l_knee"), pt("r_knee")
         (l_ankle, v_l_ankle), (r_ankle, v_r_ankle) = pt("l_ankle"), pt("r_ankle")
@@ -75,6 +79,8 @@ class PoseEngine:
             "right_knee_angle": calculate_angle(r_hip, r_knee, r_ankle),
             "left_hip_angle": calculate_angle(l_sh, l_hip, l_knee),
             "right_hip_angle": calculate_angle(r_sh, r_hip, r_knee),
+            "left_elbow_angle": calculate_angle(l_sh, l_elbow, l_wrist),
+            "right_elbow_angle": calculate_angle(r_sh, r_elbow, r_wrist),
             "left_torso_lean_deg": calculate_angle(l_sh, l_hip, l_up),
             "right_torso_lean_deg": calculate_angle(r_sh, r_hip, r_up),
              "torso_angle": round((calculate_angle(l_sh, l_hip, l_up) + calculate_angle(r_sh, r_hip, r_up)) / 2, 2)

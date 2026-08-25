@@ -1,0 +1,102 @@
+{
+    "8026939-uhd_2160_4096_25fps.mp4": {
+        "exercise": "squat",
+        "repetitions": 5,
+        "average_score": 85.0,
+        "average_rom": 108.78500000000001,
+        "repetitions_detail": [
+            {
+                "rep": 1,
+                "score": 85,
+                "lowest_angle": 43.775,
+                "rom": 110.52000000000001,
+                "errors": [
+                    "excessive_forward_lean"
+                ],
+                "feedback": "Keep your chest up to avoid excessive leaning."
+            },
+            {
+                "rep": 2,
+                "score": 85,
+                "lowest_angle": 40.465,
+                "rom": 112.995,
+                "errors": [
+                    "excessive_forward_lean"
+                ],
+                "feedback": "Keep your chest up to avoid excessive leaning."
+            },
+            {
+                "rep": 3,
+                "score": 85,
+                "lowest_angle": 45.335,
+                "rom": 101.935,
+                "errors": [
+                    "excessive_forward_lean"
+                ],
+                "feedback": "Keep your chest up to avoid excessive leaning."
+            },
+            {
+                "rep": 4,
+                "score": 85,
+                "lowest_angle": 41.89,
+                "rom": 107.77,
+                "errors": [
+                    "excessive_forward_lean"
+                ],
+                "feedback": "Keep your chest up to avoid excessive leaning."
+            },
+            {
+                "rep": 5,
+                "score": 85,
+                "lowest_angle": 41.894999999999996,
+                "rom": 110.70500000000003,
+                "errors": [
+                    "excessive_forward_lean"
+                ],
+                "feedback": "Keep your chest up to avoid excessive leaning."
+            }
+        ]
+    },
+    "4158861-hd_1080_1920_24fps.mp4": {
+        "exercise": "squat",
+        "repetitions": 1,
+        "average_score": 85.0,
+        "average_rom": 98.25999999999998,
+        "repetitions_detail": [
+            {
+                "rep": 1,
+                "score": 85,
+                "lowest_angle": 45.575,
+                "rom": 98.25999999999998,
+                "errors": [
+                    "excessive_forward_lean"
+                ],
+                "feedback": "Keep your chest up to avoid excessive leaning."
+            }
+        ]
+    },
+    "4838220-uhd_2160_3840_24fps.mp4": {
+        "exercise": "squat",
+        "repetitions": 2,
+        "average_score": 100.0,
+        "average_rom": 80.30499999999999,
+        "repetitions_detail": [
+            {
+                "rep": 1,
+                "score": 100,
+                "lowest_angle": 73.015,
+                "rom": 75.36999999999999,
+                "errors": [],
+                "feedback": "Good form. Keep going!"
+            },
+            {
+                "rep": 2,
+                "score": 100,
+                "lowest_angle": 67.2,
+                "rom": 85.24,
+                "errors": [],
+                "feedback": "Good form. Keep going!"
+            }
+        ]
+    }
+}
