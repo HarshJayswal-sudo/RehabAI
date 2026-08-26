@@ -43,7 +43,7 @@ const Navbar = ({ currentView, navigateTo }) => {
              <img src={iconImg} alt="RehabAI" style={{ height: '24px' }} />
           </div>
           <h1 style={{ fontSize: '26px', fontWeight: 900, margin: 0, letterSpacing: '-0.5px', fontFamily: 'var(--font-heading)', color: '#111' }}>
-            Rehab<span style={{ background: isDoctor ? 'linear-gradient(135deg, #10B981 0%, #34D399 100%)' : 'linear-gradient(135deg, var(--accent-color) 0%, #a8b2f0 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>AI</span>
+            Rehab<span style={{ color: isDoctor ? '#10B981' : 'var(--accent-color)' }}>AI</span>
           </h1>
         </div>
 
