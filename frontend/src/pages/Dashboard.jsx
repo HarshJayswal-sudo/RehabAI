@@ -144,8 +144,8 @@ const Dashboard = ({ onStartSession, onSelectExercise, onViewExercises, onViewHi
 
   const isRealUser = user && user.id && user.id !== 'demo';
 
-  const totalSessions = progressData?.total_sessions ?? (isRealUser ? 0 : 24);
-  const avgScore = progressData?.average_score != null ? Math.round(progressData.average_score) : (isRealUser ? 0 : 94);
+  const totalSessions = progressData?.summary?.total_sessions ?? (isRealUser ? 0 : 24);
+  const avgScore = progressData?.summary?.average_score != null ? Math.round(progressData.summary.average_score) : (isRealUser ? 0 : 94);
   const improvement = isRealUser ? (totalSessions > 1 ? '4.5' : '0.0') : '6.3';
 
   const formatTrendData = () => {

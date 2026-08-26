@@ -25,16 +25,7 @@ async function fetchWithAuth(endpoint, options = {}) {
   // Auth endpoints (login/register) must ALWAYS hit the backend directly without requiring a token
   const isAuthEndpoint = endpoint.startsWith('/auth/');
 
-  // For non-auth endpoints: If explicit demo mode ('demo-token'), return mock data
-  if (!isAuthEndpoint && token === 'demo-token') {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        if (endpoint.includes('/progress')) resolve(mockProgress);
-        else if (endpoint.includes('/sessions') && options.method === 'POST') resolve({ id: 999 });
-        else resolve({ success: true });
-      }, 300);
-    });
-  }
+  // Let demo mode hit the Python backend so the dashboard can update dynamically!
 
   const headers = {
     'Content-Type': 'application/json',

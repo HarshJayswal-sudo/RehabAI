@@ -196,32 +196,65 @@ async def websocket_session(websocket: WebSocket):
     finally:
         engine.close()
 
-# Mock REST APIs
+# In-memory storage for hackathon dashboard updates
+from datetime import datetime, timedelta
+
+GLOBAL_SESSIONS = []
 
 @app.get("/api/v1/dashboard/stats")
 def get_dashboard_stats():
-    return {"totalSessions": 42, "totalReps": 850, "avgAccuracy": 94}
+    return {"totalSessions": 42 + len(GLOBAL_SESSIONS), "totalReps": 850 + sum(s.get('repetitions', 0) for s in GLOBAL_SESSIONS), "avgAccuracy": 94}
 
 @app.get("/api/v1/sessions/recent")
 def get_recent_sessions():
-    return [
+    sessions = [
         {"id": 1, "date": "2026-08-20T10:00:00Z", "exercise": "squat", "reps": 15, "score": 95},
         {"id": 2, "date": "2026-08-21T11:30:00Z", "exercise": "leg_extension", "reps": 12, "score": 88}
     ]
+    # Add new real sessions dynamically
+    for idx, s in enumerate(GLOBAL_SESSIONS):
+        sessions.insert(0, {
+            "id": 999 + idx, 
+            "date": s.get("date"), 
+            "exercise": s.get("exercise"), 
+            "reps": s.get("repetitions", 0), 
+            "score": s.get("average_score", 0)
+        })
+    return sessions[:5] # Return top 5
 
 @app.get("/api/v1/patients/me/progress")
 def get_progress():
+    now = datetime.now()
+    trends = [
+        {"date": (now - timedelta(days=6)).isoformat(), "score": 85},
+        {"date": (now - timedelta(days=5)).isoformat(), "score": 88},
+        {"date": (now - timedelta(days=4)).isoformat(), "score": 86},
+        {"date": (now - timedelta(days=3)).isoformat(), "score": 92},
+        {"date": (now - timedelta(days=2)).isoformat(), "score": 89},
+        {"date": (now - timedelta(days=1)).isoformat(), "score": 94}
+    ]
+    
+    total_sessions = 24 + len(GLOBAL_SESSIONS)
+    current_avg = 95.0
+    
+    if GLOBAL_SESSIONS:
+        for s in GLOBAL_SESSIONS:
+            score = s.get("average_score", 0)
+            trends.append({"date": s.get("date", now.isoformat()), "score": score})
+            current_avg = score
+            
     return {
-        "dates": ["2026-08-15", "2026-08-16", "2026-08-17"],
-        "scores": [80, 85, 92]
+        "patient_id": 1,
+        "summary": { "total_sessions": total_sessions, "average_score": current_avg, "improvement": 6.3 },
+        "trends": trends
     }
 
 class SessionCreate(BaseModel):
-    exercise: str
+    exercise_id: str
 
 @app.post("/api/v1/sessions")
 def create_session(session: SessionCreate):
-    return {"id": 999}
+    return {"id": 999 + len(GLOBAL_SESSIONS)}
 
 class LoginRequest(BaseModel):
     email: str
@@ -230,17 +263,12 @@ class LoginRequest(BaseModel):
 @app.post("/api/v1/auth/patient/login")
 def login(req: LoginRequest):
     return {
-        "access_token": "mock_token_123",
-        "token_type": "bearer",
-        "user_id": 1,
-        "role": "patient",
-        "name": "Jane Doe"
+        "access_token": "mock_token_123", "token_type": "bearer",
+        "user_id": 1, "role": "patient", "name": "Jane Doe"
     }
 
 class RegisterRequest(BaseModel):
-    email: str
-    password: str
-    name: str
+    email: str; password: str; name: str
 
 @app.post("/api/v1/auth/patient/register")
 def register(req: RegisterRequest):
@@ -254,8 +282,18 @@ def auth_me():
 def complete_session(id: int):
     return {"success": True}
 
+class SessionResult(BaseModel):
+    exercise: str
+    repetitions: int
+    average_score: float
+    average_rom: float
+    repetitions_detail: list
+
 @app.post("/api/v1/sessions/{id}/results")
-def session_results(id: int):
+def session_results(id: int, result: SessionResult):
+    data = result.dict()
+    data['date'] = datetime.now().isoformat()
+    GLOBAL_SESSIONS.append(data)
     return {"success": True}
 
 if __name__ == '__main__':

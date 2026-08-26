@@ -30,11 +30,11 @@ const History = ({ historyList, onStartExercise }) => {
         if (!isMounted) return;
 
         // Map backend history_trend entries to the display format
-        const backendSessions = (data.history_trend || []).map(t => ({
-          id: t.session_id,
+        const backendSessions = (data.history_trend || data.trends || []).map(t => ({
+          id: t.session_id || t.id,
           date: t.date ? t.date.split('T')[0] : '—',
-          exercise: t.exercise_name || t.exercise_code || 'Unknown',
-          exerciseId: t.exercise_code || 'squat',
+          exercise: t.exercise_name || t.exercise_code || t.exercise || 'Unknown',
+          exerciseId: t.exercise_code || t.exercise || 'squat',
           reps: t.repetitions || 0,
           formScore: t.score != null ? Math.round(t.score) : null,
           symmetry: null,
