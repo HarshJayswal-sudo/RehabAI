@@ -13,6 +13,13 @@ from app.dependencies.auth import require_doctor, is_doctor_authorized
 router = APIRouter(prefix="/doctors", tags=["Doctors"])
 
 
+@router.get("", response_model=List[UserPublic])
+def list_doctors(db: Session = Depends(get_db)):
+    """Public/patient-accessible directory of registered physiotherapists/doctors."""
+    doctors = db.query(User).filter(User.role == UserRole.DOCTOR).all()
+    return doctors
+
+
 @router.get("/me", response_model=UserResponse)
 def get_my_profile(current_user: User = Depends(require_doctor)):
     return current_user

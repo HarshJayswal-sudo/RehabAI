@@ -217,21 +217,29 @@ export function useAIAnalysis(isActive, videoRef, selectedExercise) {
             const randomCue = goodCues[Math.floor(Math.random() * goodCues.length)];
             voiceQueue.speak(randomCue, true);
 
-            setSessionData(prev => ({
-              ...prev,
-              rep: sim.currentRep,
-              formScore: Math.round((prev.formScore * (sim.currentRep - 1) + repScore) / sim.currentRep),
-              symmetry: Math.floor(Math.random() * 5 + 93),
-              status: 'success',
-              feedback: randomCue,
-              repHistory: [...prev.repHistory, repDetail]
-            }));
+            setSessionData(prev => {
+              const currentScore = prev?.formScore || 95;
+              const prevReps = sim.currentRep - 1;
+              const newScore = prevReps > 0 ? Math.round((currentScore * prevReps + repScore) / sim.currentRep) : repScore;
+              const history = Array.isArray(prev?.repHistory) ? prev.repHistory : [];
+
+              return {
+                ...prev,
+                rep: sim.currentRep,
+                formScore: newScore,
+                symmetry: Math.floor(Math.random() * 5 + 93),
+                status: 'success',
+                feedback: randomCue,
+                repHistory: [...history, repDetail]
+              };
+            });
 
             sim.lowestAngleThisRep = 180;
             return;
           }
         }
       }
+
 
       // Compute anatomical joints based on simulated flexion
       const noise = (Math.random() - 0.5) * 2;

@@ -88,18 +88,22 @@ def list_my_authorizations(
 @router.patch("/{auth_id}/approve", response_model=AuthorizationResponse)
 def approve_authorization(
     auth_id: int,
-    current_user: User = Depends(require_patient),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """Patient approves a pending authorization request."""
+    """Doctor or Patient approves a pending authorization request."""
     auth = (
         db.query(DoctorPatientAuthorization)
+        .options(
+            joinedload(DoctorPatientAuthorization.doctor),
+            joinedload(DoctorPatientAuthorization.patient),
+        )
         .filter(DoctorPatientAuthorization.id == auth_id)
         .first()
     )
     if not auth:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Authorization not found")
-    if auth.patient_id != current_user.id:
+    if auth.patient_id != current_user.id and auth.doctor_id != current_user.id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not your authorization")
     if auth.status != AuthorizationStatus.PENDING:
         raise HTTPException(
@@ -116,17 +120,22 @@ def approve_authorization(
 @router.patch("/{auth_id}/reject", response_model=AuthorizationResponse)
 def reject_authorization(
     auth_id: int,
-    current_user: User = Depends(require_patient),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    """Doctor or Patient rejects a pending authorization request."""
     auth = (
         db.query(DoctorPatientAuthorization)
+        .options(
+            joinedload(DoctorPatientAuthorization.doctor),
+            joinedload(DoctorPatientAuthorization.patient),
+        )
         .filter(DoctorPatientAuthorization.id == auth_id)
         .first()
     )
     if not auth:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Authorization not found")
-    if auth.patient_id != current_user.id:
+    if auth.patient_id != current_user.id and auth.doctor_id != current_user.id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not your authorization")
     if auth.status != AuthorizationStatus.PENDING:
         raise HTTPException(

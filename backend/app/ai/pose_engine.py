@@ -164,17 +164,34 @@ class PoseExtractor:
         diff_knee = abs(l_knee_angle - r_knee_angle)
         knee_symmetry = max(0.0, min(100.0, round(100.0 - diff_knee, 1)))
 
-        # Simplified key landmarks for client overlay
-        key_landmarks: List[Dict[str, Any]] = []
-        for name, idx in LM.items():
+        # Map snake_case landmark names to camelCase keys for the frontend canvas renderer.
+        # Session.jsx accesses landmarks as: lm.leftShoulder, lm.leftKnee, lm.rightHip, etc.
+        CAMEL_MAP = {
+            "nose":       "nose",
+            "l_shoulder": "leftShoulder",
+            "r_shoulder": "rightShoulder",
+            "l_elbow":    "leftElbow",
+            "r_elbow":    "rightElbow",
+            "l_wrist":    "leftWrist",
+            "r_wrist":    "rightWrist",
+            "l_hip":      "leftHip",
+            "r_hip":      "rightHip",
+            "l_knee":     "leftKnee",
+            "r_knee":     "rightKnee",
+            "l_ankle":    "leftAnkle",
+            "r_ankle":    "rightAnkle",
+        }
+
+        landmarks_dict: Dict[str, Any] = {}
+        for snake_name, idx in LM.items():
             p = lm[idx]
             vis = getattr(p, "visibility", 1.0)
-            key_landmarks.append({
-                "name": name,
+            camel_name = CAMEL_MAP.get(snake_name, snake_name)
+            landmarks_dict[camel_name] = {
                 "x": round(float(p.x), 4),
                 "y": round(float(p.y), 4),
                 "visibility": round(float(vis if vis is not None else 1.0), 2),
-            })
+            }
 
         return {
             "pose_detected": True,
@@ -186,8 +203,9 @@ class PoseExtractor:
             "right_hip_angle": r_hip_angle,
             "torso_angle": torso_angle,
             "symmetry": knee_symmetry,
-            "landmarks": key_landmarks,
+            "landmarks": landmarks_dict,
         }
+
 
     def close(self):
         if self.landmarker and hasattr(self.landmarker, "close"):

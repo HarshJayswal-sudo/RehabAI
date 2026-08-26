@@ -23,20 +23,36 @@ const DEFAULT_HISTORY = [
 ];
 
 function AppContent() {
+  const { user } = useAuth();
   const [currentView, setCurrentView] = useState('landing');
   const [selectedExercise, setSelectedExercise] = useState(EXERCISES[0]);
   const [sessionResults, setSessionResults] = useState(null);
-  const [historyList, setHistoryList] = useState(() => {
-    const saved = localStorage.getItem('rehab_ai_history');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        return DEFAULT_HISTORY;
+  const [historyList, setHistoryList] = useState([]);
+
+  // Sync user-specific history whenever user changes
+  useEffect(() => {
+    if (!user || user.id === 'demo' || user.id === 'demo-doctor') {
+      const saved = localStorage.getItem('rehab_ai_history_demo');
+      if (saved) {
+        try { setHistoryList(JSON.parse(saved)); } catch (e) { setHistoryList(DEFAULT_HISTORY); }
+      } else {
+        setHistoryList(DEFAULT_HISTORY);
+      }
+    } else {
+      const storageKey = `rehab_ai_history_${user.id}`;
+      const saved = localStorage.getItem(storageKey);
+      if (saved) {
+        try { setHistoryList(JSON.parse(saved)); } catch (e) { setHistoryList([]); }
+      } else {
+        setHistoryList([]);
       }
     }
-    return DEFAULT_HISTORY;
-  });
+
+    // Auto-route on login if on auth or landing
+    if (user?.role === 'doctor') {
+      setCurrentView(prev => (prev === 'auth' || prev === 'landing' ? 'doctor' : prev));
+    }
+  }, [user]);
 
   const navigateTo = (view) => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -56,7 +72,7 @@ function AppContent() {
   const finishSession = (results) => {
     setSessionResults(results);
 
-    // Save to persistent history log
+    // Save to persistent user-specific history log
     const newEntry = {
       id: Date.now(),
       date: new Date().toISOString().split('T')[0],
@@ -70,14 +86,16 @@ function AppContent() {
       status: (results.formScore || 95) >= 90 ? 'Optimal' : 'Needs Work'
     };
 
+    const storageKey = (!user || user.id === 'demo' || user.id === 'demo-doctor') ? 'rehab_ai_history_demo' : `rehab_ai_history_${user.id}`;
     setHistoryList(prev => {
       const updated = [newEntry, ...prev];
-      localStorage.setItem('rehab_ai_history', JSON.stringify(updated));
+      localStorage.setItem(storageKey, JSON.stringify(updated));
       return updated;
     });
 
     navigateTo('summary');
   };
+
 
   const repeatCurrentSession = () => {
     navigateTo('session');
@@ -89,11 +107,17 @@ function AppContent() {
       
       <main style={{ flex: 1, backgroundColor: 'var(--bg-color)' }}>
         {currentView === 'landing' && (
-          <Landing onStart={() => navigateTo('dashboard')} />
+          <Landing onStart={() => navigateTo(user?.role === 'doctor' ? 'doctor' : 'dashboard')} />
         )}
 
         {currentView === 'auth' && (
-          <Auth onAuthSuccess={() => navigateTo('dashboard')} />
+          <Auth onAuthSuccess={(authUser) => {
+            if (authUser?.role === 'doctor') {
+              navigateTo('doctor');
+            } else {
+              navigateTo('dashboard');
+            }
+          }} />
         )}
 
         {currentView === 'dashboard' && (
@@ -144,13 +168,55 @@ function AppContent() {
   );
 }
 
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error("RehabAI UI Error:", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', backgroundColor: '#0F172A', color: '#FFF', padding: '20px', textAlign: 'center' }}>
+          <h2 style={{ fontSize: '28px', fontWeight: 800, marginBottom: '12px' }}>Workout Session Paused</h2>
+          <p style={{ color: '#94A3B8', maxWidth: '500px', marginBottom: '24px' }}>
+            A temporary display issue occurred. You can return to the exercise selection screen and resume.
+          </p>
+          <button 
+            onClick={() => {
+              this.setState({ hasError: false });
+              window.location.href = '/';
+            }}
+            className="btn btn-primary"
+            style={{ padding: '12px 30px', borderRadius: '50px', fontWeight: 800 }}
+          >
+            Return to Dashboard
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 function App() {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
 
 export default App;
+
 

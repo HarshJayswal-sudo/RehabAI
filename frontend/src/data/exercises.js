@@ -7,13 +7,10 @@ import c5 from '../assets/images/classes-5.jpg';
 export const EXERCISES = [
   {
     id: 'squat',
-    numericId: 1,
-    code: 'SQUAT_01',
     name: 'Bodyweight Squat',
     category: 'Lower Body',
     difficulty: 'Beginner',
     duration: '10-15 min',
-    target_rom: 90,
     targetMuscles: ['Quadriceps', 'Glutes', 'Hamstrings', 'Core'],
     primaryJoint: 'Knees & Hips',
     idealAngle: '85° - 95°',
@@ -38,13 +35,10 @@ export const EXERCISES = [
   },
   {
     id: 'lunges',
-    numericId: 2,
-    code: 'LUNGE_01',
     name: 'Bodyweight Lunge',
     category: 'Lower Body',
     difficulty: 'Intermediate',
     duration: '10-12 min',
-    target_rom: 90,
     targetMuscles: ['Quadriceps', 'Glutes', 'Calves', 'Core Stability'],
     primaryJoint: 'Knees & Ankle',
     idealAngle: '85° - 90°',
@@ -69,13 +63,10 @@ export const EXERCISES = [
   },
   {
     id: 'leg_extension',
-    numericId: 3,
-    code: 'LEG_EXT_01',
     name: 'Seated Leg Extension',
     category: 'Post-Surgery Rehab',
     difficulty: 'Beginner',
     duration: '8-10 min',
-    target_rom: 160,
     targetMuscles: ['Quadriceps', 'Patellar Tendon', 'Vastus Medialis'],
     primaryJoint: 'Knee Extension',
     idealAngle: '150° - 170°',
@@ -100,13 +91,10 @@ export const EXERCISES = [
   },
   {
     id: 'wall_push_up',
-    numericId: 4,
-    code: 'WALL_PUSH_01',
     name: 'Wall Push-Up',
     category: 'Upper Body',
     difficulty: 'Beginner',
     duration: '8-12 min',
-    target_rom: 90,
     targetMuscles: ['Pectorals', 'Anterior Deltoids', 'Triceps', 'Scapular Stabilizers'],
     primaryJoint: 'Elbows & Shoulders',
     idealAngle: '80° - 90°',
@@ -131,13 +119,10 @@ export const EXERCISES = [
   },
   {
     id: 'wind_will_toe_touch',
-    numericId: 5,
-    code: 'WINDMILL_01',
     name: 'Windmill Toe Touch',
     category: 'Core & Mobility',
     difficulty: 'Intermediate',
     duration: '10-15 min',
-    target_rom: 80,
     targetMuscles: ['Hamstrings', 'Obliques', 'Lower Back', 'Hip Rotators'],
     primaryJoint: 'Hips & Thoracic Spine',
     idealAngle: '70° - 85°',
@@ -161,3 +146,4 @@ export const EXERCISES = [
     }
   }
 ];
+

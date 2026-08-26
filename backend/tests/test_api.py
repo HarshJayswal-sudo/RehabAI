@@ -375,3 +375,57 @@ def test_doctor_authorization_and_observation():
     live_res = client.post(f"/api/v1/sessions/{session_id}/doctor-access", headers=d_headers)
     assert live_res.status_code == 200
     assert "live_access_token" in live_res.json()
+
+
+def test_doctors_directory_and_doctor_approval():
+    # 1. Register a new doctor
+    d_res = client.post(
+        "/api/v1/auth/doctor/register",
+        json={"email": "drsarah@test.com", "password": "password123", "name": "Dr. Sarah Jenkins"},
+    )
+    assert d_res.status_code == 201
+    dr_id = d_res.json()["id"]
+
+    dr_login = client.post(
+        "/api/v1/auth/doctor/login",
+        json={"email": "drsarah@test.com", "password": "password123"},
+    )
+    dr_token = dr_login.json()["access_token"]
+    d_headers = {"Authorization": f"Bearer {dr_token}"}
+
+    # 2. Check public doctors directory
+    docs_res = client.get("/api/v1/doctors")
+    assert docs_res.status_code == 200
+    doctors = docs_res.json()
+    assert any(d["email"] == "drsarah@test.com" for d in doctors)
+
+    # 3. Register patient
+    p_res = client.post(
+        "/api/v1/auth/patient/register",
+        json={"email": "alex@test.com", "password": "password123", "name": "Alex Johnson"},
+    )
+    p_login = client.post(
+        "/api/v1/auth/patient/login",
+        json={"email": "alex@test.com", "password": "password123"},
+    )
+    p_headers = {"Authorization": f"Bearer {p_login.json()['access_token']}"}
+
+    # 4. Patient sends connection request to doctor
+    req_res = client.post("/api/v1/authorizations", json={"doctor_id": dr_id}, headers=p_headers)
+    assert req_res.status_code == 201
+    auth_id = req_res.json()["id"]
+
+    # 5. Doctor views pending authorizations
+    d_auths = client.get("/api/v1/authorizations/me", headers=d_headers)
+    assert d_auths.status_code == 200
+    assert any(a["id"] == auth_id and a["status"] == "pending" for a in d_auths.json())
+
+    # 6. Doctor approves the request
+    appr_res = client.patch(f"/api/v1/authorizations/{auth_id}/approve", headers=d_headers)
+    assert appr_res.status_code == 200
+    assert appr_res.json()["status"] == "approved"
+
+    # 7. Doctor sees Alex in their patient list
+    my_patients = client.get("/api/v1/doctors/me/patients", headers=d_headers)
+    assert my_patients.status_code == 200
+    assert any(p["email"] == "alex@test.com" for p in my_patients.json())

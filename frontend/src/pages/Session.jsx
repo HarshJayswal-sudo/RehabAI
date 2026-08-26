@@ -105,7 +105,7 @@ const Session = ({ selectedExercise: initialExercise, onEnd, onCancel }) => {
 
   // Real-time Canvas Skeleton Rendering Loop
   useEffect(() => {
-    if (phase !== 'active' || !overlayCanvasRef.current || !data.landmarks) return;
+    if (phase !== 'active' || !overlayCanvasRef.current) return;
 
     const canvas = overlayCanvasRef.current;
     const ctx = canvas.getContext('2d');
@@ -113,40 +113,66 @@ const Session = ({ selectedExercise: initialExercise, onEnd, onCancel }) => {
 
     let animId;
     const renderSkeleton = () => {
-      const w = canvas.width = canvas.offsetWidth;
-      const h = canvas.height = canvas.offsetHeight;
+      const w = (canvas.width = canvas.offsetWidth || 640);
+      const h = (canvas.height = canvas.offsetHeight || 480);
       ctx.clearRect(0, 0, w, h);
 
-      const lm = data.landmarks;
-      if (!lm) return;
+      const lm = data?.landmarks;
+      if (!lm) {
+        animId = requestAnimationFrame(renderSkeleton);
+        return;
+      }
 
-      const strokeColor = data.formScore >= 90 ? '#10B981' : (data.formScore >= 75 ? '#F59E0B' : '#EF4444');
-      const boneGlow = data.formScore >= 90 ? 'rgba(16, 185, 129, 0.4)' : 'rgba(239, 68, 68, 0.4)';
+      const strokeColor = (data.formScore || 95) >= 90 ? '#10B981' : ((data.formScore || 95) >= 75 ? '#F59E0B' : '#EF4444');
+      const boneGlow = (data.formScore || 95) >= 90 ? 'rgba(16, 185, 129, 0.4)' : 'rgba(239, 68, 68, 0.4)';
 
-      // Convert normalized point to canvas pixels (mirrored x-axis)
-      const pt = (p) => ({
-        x: (1 - p.x) * w,
-        y: p.y * h
-      });
+      // Safe point converter
+      const pt = (p) => {
+        if (!p || typeof p.x !== 'number' || typeof p.y !== 'number' || isNaN(p.x) || isNaN(p.y)) {
+          return null;
+        }
+        return {
+          x: Math.max(0, Math.min(w, (1 - p.x) * w)),
+          y: Math.max(0, Math.min(h, p.y * h))
+        };
+      };
+
+      // Normalize array or dict format
+      const getLm = (name) => {
+        if (!lm) return null;
+        if (Array.isArray(lm)) {
+          const item = lm.find(l => l.name === name || l.name === name.toLowerCase());
+          return item ? pt(item) : null;
+        }
+        return pt(lm[name]);
+      };
+
+      const lShoulder = getLm('leftShoulder') || getLm('l_shoulder');
+      const rShoulder = getLm('rightShoulder') || getLm('r_shoulder');
+      const lElbow = getLm('leftElbow') || getLm('l_elbow');
+      const rElbow = getLm('rightElbow') || getLm('r_elbow');
+      const lWrist = getLm('leftWrist') || getLm('l_wrist');
+      const rWrist = getLm('rightWrist') || getLm('r_wrist');
+      const lHip = getLm('leftHip') || getLm('l_hip');
+      const rHip = getLm('rightHip') || getLm('r_hip');
+      const lKnee = getLm('leftKnee') || getLm('l_knee');
+      const rKnee = getLm('rightKnee') || getLm('r_knee');
+      const lAnkle = getLm('leftAnkle') || getLm('l_ankle');
+      const rAnkle = getLm('rightAnkle') || getLm('r_ankle');
 
       const connections = [
-        // Torso
-        [lm.leftShoulder, lm.rightShoulder],
-        [lm.leftShoulder, lm.leftHip],
-        [lm.rightShoulder, lm.rightHip],
-        [lm.leftHip, lm.rightHip],
-        // Left Arm
-        [lm.leftShoulder, lm.leftElbow],
-        [lm.leftElbow, lm.leftWrist],
-        // Right Arm
-        [lm.rightShoulder, lm.rightElbow],
-        [lm.rightElbow, lm.rightWrist],
-        // Left Leg
-        [lm.leftHip, lm.leftKnee],
-        [lm.leftKnee, lm.leftAnkle],
-        // Right Leg
-        [lm.rightHip, lm.rightKnee],
-        [lm.rightKnee, lm.rightAnkle]
+        [lShoulder, rShoulder],
+        [lShoulder, lHip],
+        [rShoulder, rHip],
+        [lHip, rHip],
+        [lShoulder, lElbow],
+        [lElbow, lWrist],
+        [rShoulder, rElbow],
+        [rElbow, rWrist],
+        [lHip, lKnee],
+        [lKnee, lAnkle],
+        [rHip, rKnee],
+        [rKnee, rAnkle]
       ];
 
       // 1. Draw Bones
@@ -157,19 +183,16 @@ const Session = ({ selectedExercise: initialExercise, onEnd, onCancel }) => {
 
       connections.forEach(([p1, p2]) => {
         if (!p1 || !p2) return;
-        const a = pt(p1);
-        const b = pt(p2);
         ctx.beginPath();
-        ctx.moveTo(a.x, a.y);
-        ctx.lineTo(b.x, b.y);
+        ctx.moveTo(p1.x, p1.y);
+        ctx.lineTo(p2.x, p2.y);
         ctx.stroke();
       });
 
       // 2. Draw Landmark Joints
-      Object.entries(lm).forEach(([name, p]) => {
-        const point = pt(p);
-        
-        // Outer glowing ring
+      const allJoints = [lShoulder, rShoulder, lElbow, rElbow, lWrist, rWrist, lHip, rHip, lKnee, rKnee, lAnkle, rAnkle];
+      allJoints.forEach(point => {
+        if (!point) return;
         ctx.beginPath();
         ctx.arc(point.x, point.y, 7, 0, Math.PI * 2);
         ctx.fillStyle = '#FFFFFF';
@@ -177,35 +200,43 @@ const Session = ({ selectedExercise: initialExercise, onEnd, onCancel }) => {
         ctx.shadowBlur = 10;
         ctx.fill();
 
-        // Inner core
         ctx.beginPath();
         ctx.arc(point.x, point.y, 4, 0, Math.PI * 2);
         ctx.fillStyle = strokeColor;
         ctx.fill();
       });
 
-      // 3. Draw Angle Badges at active joints
+      // 3. Draw Angle Badges safely
       const drawAngleBadge = (point, angle, label) => {
+        if (!point || typeof angle === 'undefined' || angle === null) return;
         ctx.shadowBlur = 0;
         ctx.font = 'bold 12px Montserrat, sans-serif';
-        const text = `${angle}°`;
+        const text = `${Math.round(angle)}°`;
         const textWidth = ctx.measureText(text).width;
         
         ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
         ctx.beginPath();
-        ctx.roundRect(point.x - textWidth / 2 - 8, point.y - 30, textWidth + 16, 22, 6);
+        const bx = point.x - textWidth / 2 - 8;
+        const by = point.y - 30;
+        const bw = textWidth + 16;
+        const bh = 22;
+        if (ctx.roundRect) {
+          ctx.roundRect(bx, by, bw, bh, 6);
+        } else {
+          ctx.rect(bx, by, bw, bh);
+        }
         ctx.fill();
 
         ctx.fillStyle = '#38BDF8';
         ctx.fillText(text, point.x - textWidth / 2, point.y - 15);
       };
 
-      if (activeExercise.id === 'wall_push_up') {
-        drawAngleBadge(pt(lm.leftElbow), data.primaryAngle, 'L Elbow');
-        drawAngleBadge(pt(lm.rightElbow), data.secondaryAngle, 'R Elbow');
+      if (activeExercise?.id === 'wall_push_up') {
+        if (lElbow) drawAngleBadge(lElbow, data.primaryAngle, 'L Elbow');
+        if (rElbow) drawAngleBadge(rElbow, data.secondaryAngle, 'R Elbow');
       } else {
-        drawAngleBadge(pt(lm.leftKnee), data.primaryAngle, 'L Knee');
-        drawAngleBadge(pt(lm.rightKnee), data.secondaryAngle, 'R Knee');
+        if (lKnee) drawAngleBadge(lKnee, data.primaryAngle, 'L Knee');
+        if (rKnee) drawAngleBadge(rKnee, data.secondaryAngle, 'R Knee');
       }
 
       animId = requestAnimationFrame(renderSkeleton);
@@ -217,6 +248,7 @@ const Session = ({ selectedExercise: initialExercise, onEnd, onCancel }) => {
       if (animId) cancelAnimationFrame(animId);
     };
   }, [phase, data.landmarks, data.formScore, data.primaryAngle, data.secondaryAngle, activeExercise]);
+
 
   // Calibration progress
   useEffect(() => {

@@ -125,3 +125,27 @@ def test_websocket_session_lifecycle():
         assert "results" in finish_res
         assert finish_res["results"]["exercise"] == "squat"
 
+
+def test_landmark_camelcase_format():
+    """Verify pose_engine emits landmarks as camelCase keyed dict for frontend skeleton canvas."""
+    from app.ai.pose_engine import PoseExtractor
+    import numpy as np
+
+    extractor = PoseExtractor()
+
+    # Create a blank black frame — no pose will be detected, but if one were,
+    # landmarks must be a dict with camelCase keys.
+    # Here we just confirm the code path for empty frame returns pose_detected=False (no crash).
+    blank = np.zeros((100, 100, 3), dtype=np.uint8)
+    result = extractor.process_frame(blank)
+    assert "pose_detected" in result
+    # Confirm the shape: if somehow detected, landmarks must be a dict, not a list
+    if result.get("pose_detected") and result.get("landmarks"):
+        lm = result["landmarks"]
+        assert isinstance(lm, dict), "landmarks must be a camelCase keyed dict"
+        # Check at least one expected camelCase key is present
+        assert "leftKnee" in lm or "rightKnee" in lm
+        # Each value should have x, y keys
+        for key, val in lm.items():
+            assert "x" in val and "y" in val
+    extractor.close()

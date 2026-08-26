@@ -1,0 +1,154 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Open+Sans:wght@400;600&display=swap');
+
+:root {
+  /* Colors - Zogin Theme */
+  --bg-color: #FFFFFF;
+  --bg-light: #F9F9FA;
+  --surface-color: #FFFFFF;
+  
+  --text-primary: #333333;
+  --text-secondary: #777777;
+  
+  --accent-color: #6472D9; /* Zogin Indigo */
+  --accent-hover: #505DBF;
+  --accent-light: #E8EAFA;
+  
+  --success-color: #28a745;
+  --warning-color: #ffc107;
+  --danger-color: #dc3545;
+
+  /* Typography */
+  --font-heading: 'Montserrat', sans-serif;
+  --font-main: 'Open Sans', sans-serif;
+  
+  /* Borders & Shadows */
+  --border-radius-sm: 8px;
+  --border-radius-md: 12px;
+  
+  --shadow-sm: 0 5px 15px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  font-family: var(--font-main);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  color: #111111;
+  font-weight: 700;
+}
+
+/* --- TYPOGRAPHY --- */
+.text-hero {
+  font-size: clamp(40px, 5vw, 64px);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.5px;
+}
+
+.text-heading {
+  font-size: clamp(32px, 4vw, 44px);
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.section-title {
+  font-size: 36px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 50px;
+}
+
+.text-muted { color: var(--text-secondary); }
+.text-accent { color: var(--accent-color); }
+
+/* --- CARDS --- */
+.card-clean {
+  background: #FFFFFF;
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: 40px 30px;
+  text-align: center;
+  transition: all 0.3s ease;
+  border: 1px solid #f1f1f1;
+}
+
+.card-clean:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-5px);
+}
+
+/* --- BUTTONS --- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 35px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  font-family: var(--font-heading);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.btn-primary {
+  background-color: var(--accent-color);
+  color: #FFFFFF;
+}
+
+.btn-primary:hover {
+  background-color: var(--accent-hover);
+  color: #FFFFFF;
+}
+
+.btn-white {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: #FFFFFF;
+  border: 2px solid #FFFFFF;
+}
+
+.btn-white:hover {
+  background-color: #FFFFFF;
+  color: var(--accent-color);
+}
+
+/* Common Layouts */
+.container {
+  max-width: 1170px;
+  margin: 0 auto;
+  padding: 0 15px;
+}
+
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
