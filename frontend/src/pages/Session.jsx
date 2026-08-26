@@ -57,6 +57,7 @@ const Session = ({ selectedExercise: initialExercise, onEnd, onCancel }) => {
   const videoRef = useRef(null);
   const overlayCanvasRef = useRef(null);
   const streamRef = useRef(null);
+  const smoothedLandmarksRef = useRef({});
 
   const data = useAIAnalysis(isActive && phase === 'active', videoRef, activeExercise);
   
@@ -126,15 +127,23 @@ const Session = ({ selectedExercise: initialExercise, onEnd, onCancel }) => {
       const strokeColor = (data.formScore || 95) >= 90 ? '#10B981' : ((data.formScore || 95) >= 75 ? '#F59E0B' : '#EF4444');
       const boneGlow = (data.formScore || 95) >= 90 ? 'rgba(16, 185, 129, 0.4)' : 'rgba(239, 68, 68, 0.4)';
 
-      // Safe point converter
-      const pt = (p) => {
+      // Safe point converter with EMA Smoothing
+      const lerp = (start, end, amt) => (1 - amt) * start + amt * end;
+      
+      const pt = (p, name) => {
         if (!p || typeof p.x !== 'number' || typeof p.y !== 'number' || isNaN(p.x) || isNaN(p.y)) {
           return null;
         }
-        return {
-          x: Math.max(0, Math.min(w, (1 - p.x) * w)),
-          y: Math.max(0, Math.min(h, p.y * h))
-        };
+        const targetX = Math.max(0, Math.min(w, (1 - p.x) * w));
+        const targetY = Math.max(0, Math.min(h, p.y * h));
+
+        if (!smoothedLandmarksRef.current[name]) {
+          smoothedLandmarksRef.current[name] = { x: targetX, y: targetY };
+        } else {
+          smoothedLandmarksRef.current[name].x = lerp(smoothedLandmarksRef.current[name].x, targetX, 0.35);
+          smoothedLandmarksRef.current[name].y = lerp(smoothedLandmarksRef.current[name].y, targetY, 0.35);
+        }
+        return smoothedLandmarksRef.current[name];
       };
 
       // Normalize array or dict format
@@ -142,9 +151,9 @@ const Session = ({ selectedExercise: initialExercise, onEnd, onCancel }) => {
         if (!lm) return null;
         if (Array.isArray(lm)) {
           const item = lm.find(l => l.name === name || l.name === name.toLowerCase());
-          return item ? pt(item) : null;
+          return item ? pt(item, name) : null;
         }
-        return pt(lm[name]);
+        return pt(lm[name], name);
       };
 
       const lShoulder = getLm('leftShoulder') || getLm('l_shoulder');

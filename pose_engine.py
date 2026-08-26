@@ -14,6 +14,7 @@ the comparison would be comparing apples to oranges.
 import cv2
 import mediapipe as mp
 import numpy as np
+import os
 
 # MediaPipe Pose landmark indices we use (both sides of the body)
 LM = {
@@ -42,25 +43,41 @@ def calculate_angle(a, b, c):
     return round(float(angle), 2)
 
 
+import time
+
 class PoseEngine:
     def __init__(self, static_image_mode=False, model_complexity=1,
                  min_detection_confidence=0.5, min_tracking_confidence=0.5):
-        self.mp_pose = mp.solutions.pose
-        self.mp_drawing = mp.solutions.drawing_utils
-        self.mp_drawing_styles = mp.solutions.drawing_styles
-        self.pose = self.mp_pose.Pose(
-            static_image_mode=static_image_mode,
-            model_complexity=model_complexity,
-            min_detection_confidence=min_detection_confidence,
-            min_tracking_confidence=min_tracking_confidence,
+
+        self.mp = mp
+        self.vision = mp.tasks.vision
+        
+        # We need the local model file
+        model_path = os.path.join(os.path.dirname(__file__), 'models', 'pose_landmarker_full.task')
+        
+        base_options = mp.tasks.BaseOptions(model_asset_path=model_path)
+        # Use VIDEO mode for temporal smoothing and better accuracy
+        options = self.vision.PoseLandmarkerOptions(
+            base_options=base_options,
+            running_mode=self.vision.RunningMode.VIDEO,
+            num_poses=1,
+            min_pose_detection_confidence=min_detection_confidence,
+            min_pose_presence_confidence=min_detection_confidence,
+            min_tracking_confidence=min_tracking_confidence
         )
+        
+        self.landmarker = self.vision.PoseLandmarker.create_from_options(options)
+        self.start_time = time.time()
+
+    def close(self):
+        self.landmarker.close()
 
     def _angles_from_landmarks(self, lm):
-        """All the angle math, in one place. lm = results.pose_landmarks.landmark"""
+        """All the angle math, in one place. lm = list of NormalizedLandmark"""
 
         def pt(name):
             p = lm[LM[name]]
-            return [p.x, p.y], p.visibility
+            return [p.x, p.y], getattr(p, 'presence_confidence', getattr(p, 'visibility', 1.0))
 
         (l_sh, v_l_sh), (r_sh, v_r_sh) = pt("l_shoulder"), pt("r_shoulder")
         (l_elbow, v_l_elbow), (r_elbow, v_r_elbow) = pt("l_elbow"), pt("r_elbow")
@@ -86,24 +103,49 @@ class PoseEngine:
              "torso_angle": round((calculate_angle(l_sh, l_hip, l_up) + calculate_angle(r_sh, r_hip, r_up)) / 2, 2)
         }
 
-        min_visibility = min(v_l_sh, v_r_sh, v_l_hip, v_r_hip,
-                              v_l_knee, v_r_knee, v_l_ankle, v_r_ankle)
+        # ONLY check core torso for visibility so 'NO PERSON DETECTED' isn't triggered if ankles are out of frame
+        min_visibility = min(v_l_sh, v_r_sh, v_l_hip, v_r_hip)
         angles["confident"] = bool(min_visibility >= VISIBILITY_THRESHOLD)
         angles["min_landmark_visibility"] = round(float(min_visibility), 3)
+        
+        # Add frontend-compatible landmarks (x, y normalized 0.0 to 1.0)
+        angles["landmarks"] = {
+            "nose": {"x": lm[0].x, "y": lm[0].y},
+            "leftShoulder": {"x": lm[11].x, "y": lm[11].y},
+            "rightShoulder": {"x": lm[12].x, "y": lm[12].y},
+            "leftElbow": {"x": lm[13].x, "y": lm[13].y},
+            "rightElbow": {"x": lm[14].x, "y": lm[14].y},
+            "leftWrist": {"x": lm[15].x, "y": lm[15].y},
+            "rightWrist": {"x": lm[16].x, "y": lm[16].y},
+            "leftHip": {"x": lm[23].x, "y": lm[23].y},
+            "rightHip": {"x": lm[24].x, "y": lm[24].y},
+            "leftKnee": {"x": lm[25].x, "y": lm[25].y},
+            "rightKnee": {"x": lm[26].x, "y": lm[26].y},
+            "leftAnkle": {"x": lm[27].x, "y": lm[27].y},
+            "rightAnkle": {"x": lm[28].x, "y": lm[28].y}
+        }
+        
         return angles
 
     def process_frame(self, frame_bgr):
         """
-        Run pose detection on one BGR frame (as read by cv2.VideoCapture).
-        Returns None if no person was detected, otherwise a dict of joint
-        angles plus a confidence flag. Use this for offline/batch work —
-        it does no drawing, so it's the faster path.
+        Run pose detection on one BGR frame.
         """
         rgb = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2RGB)
-        results = self.pose.process(rgb)
+        mp_image = self.mp.Image(image_format=self.mp.ImageFormat.SRGB, data=rgb)
+        
+        timestamp_ms = int((time.time() - self.start_time) * 1000)
+        # Ensure timestamp always increases even if called really fast
+        if not hasattr(self, 'last_timestamp'):
+            self.last_timestamp = -1
+        if timestamp_ms <= self.last_timestamp:
+            timestamp_ms = self.last_timestamp + 1
+        self.last_timestamp = timestamp_ms
+
+        results = self.landmarker.detect_for_video(mp_image, timestamp_ms)
         if not results.pose_landmarks:
             return None
-        return self._angles_from_landmarks(results.pose_landmarks.landmark)
+        return self._angles_from_landmarks(results.pose_landmarks[0])
 
     def process_frame_with_overlay(self, frame_bgr):
         """
@@ -135,5 +177,4 @@ class PoseEngine:
 
         return angles
 
-    def close(self):
-        self.pose.close()
+

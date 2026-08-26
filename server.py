@@ -21,9 +21,9 @@ from windwheel_toe_touch import WindwheelToeTouchAnalyzer
 ANALYZERS = {
     'squat': SquatAnalyzer,
     'leg_extension': LegExtensionAnalyzer,
-    'wall_pushup': WallPushupAnalyzer,
-    'bodyweight_lunge': BodyweightLungeAnalyzer,
-    'windwheel_toe_touch': WindwheelToeTouchAnalyzer,
+    'wall_push_up': WallPushupAnalyzer,
+    'lunges': BodyweightLungeAnalyzer,
+    'wind_will_toe_touch': WindwheelToeTouchAnalyzer,
 }
 
 app = FastAPI(title="RehabAI API Server")
@@ -137,21 +137,21 @@ async def websocket_session(websocket: WebSocket):
                     symmetry = compute_symmetry(left, right)
                     kneeAngle = target_angle
                     
-                elif exercise_type == 'bodyweight_lunge':
+                elif exercise_type == 'lunges':
                     left = angles.get('left_knee_angle', 0)
                     right = angles.get('right_knee_angle', 0)
                     target_angle = extract_representative_angle(left, right, is_flexion=True)
                     symmetry = compute_symmetry(left, right)
                     kneeAngle = target_angle
                     
-                elif exercise_type == 'windwheel_toe_touch':
+                elif exercise_type == 'wind_will_toe_touch':
                     left = angles.get('left_hip_angle', 0)
                     right = angles.get('right_hip_angle', 0)
                     target_angle = extract_representative_angle(left, right, is_flexion=True)
                     symmetry = compute_symmetry(left, right)
                     hipAngle = target_angle
                     
-                elif exercise_type == 'wall_pushup':
+                elif exercise_type == 'wall_push_up':
                     left = angles.get('left_elbow_angle', 0)
                     right = angles.get('right_elbow_angle', 0)
                     target_angle = extract_representative_angle(left, right, is_flexion=True)
@@ -185,7 +185,8 @@ async def websocket_session(websocket: WebSocket):
                     "feedback": feedback,
                     "kneeAngle": round(kneeAngle, 1),
                     "hipAngle": round(hipAngle, 1),
-                    "torsoAngle": round(torsoAngle, 1)
+                    "torsoAngle": round(torsoAngle, 1),
+                    "landmarks": angles.get("landmarks")
                 }
                 
                 await websocket.send_json(response)
