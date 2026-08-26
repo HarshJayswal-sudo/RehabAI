@@ -124,7 +124,7 @@ export function useAIAnalysis(isActive, videoRef, selectedExercise) {
 
     // Connect to Python Backend WebSocket
     try {
-      wsRef.current = new WebSocket('ws://localhost:8000/ws/session');
+      wsRef.current = new WebSocket(`ws://${window.location.hostname}:8000/ws/session`);
 
       wsRef.current.onopen = () => {
         isWsConnectedRef.current = true;

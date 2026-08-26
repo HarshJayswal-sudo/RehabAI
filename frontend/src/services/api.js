@@ -1,4 +1,4 @@
-const BASE_URL = 'http://127.0.0.1:8000/api/v1';
+const BASE_URL = `http://${window.location.hostname}:8000/api/v1`;
 
 // MOCK DATA FOR DEMO MODE
 const mockProgress = {
