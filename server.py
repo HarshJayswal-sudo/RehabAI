@@ -170,7 +170,7 @@ async def websocket_session(websocket: WebSocket):
                     kneeAngle = target_angle  # Display elbow angle in the kneeAngle field
                     
                 # Apply EMA smoothing to the primary tracking angle
-                alpha = 0.4
+                alpha = 0.7
                 if 'smoothed_target_angle' not in locals() or smoothed_target_angle is None:
                     smoothed_target_angle = target_angle
                 else:
@@ -188,11 +188,18 @@ async def websocket_session(websocket: WebSocket):
                 form_score = round(results['average_score']) if rep_count > 0 else 100
                 
                 # Generate live feedback based on analyzer state
-                if rep_count > 0 and results['repetitions_detail']:
-                    last_rep = results['repetitions_detail'][-1]
-                    feedback = last_rep['feedback']
+                if hasattr(analyzer, 'get_realtime_guidance'):
+                    guidance = analyzer.get_realtime_guidance()
+                    feedback = guidance["instruction"]
+                    direction = guidance["direction"]
                 else:
-                    feedback = "Keep going!"
+                    # Fallback for old analyzers
+                    if rep_count > 0 and results['repetitions_detail']:
+                        last_rep = results['repetitions_detail'][-1]
+                        feedback = last_rep['feedback']
+                    else:
+                        feedback = "Keep going!"
+                    direction = "NONE"
                 
                 status = 'good' if form_score >= 80 else 'warning'
                 
@@ -202,6 +209,7 @@ async def websocket_session(websocket: WebSocket):
                     "symmetry": round(symmetry, 1),
                     "status": status,
                     "feedback": feedback,
+                    "direction": direction,
                     "kneeAngle": round(kneeAngle, 1),
                     "hipAngle": round(hipAngle, 1),
                     "torsoAngle": round(torsoAngle, 1),

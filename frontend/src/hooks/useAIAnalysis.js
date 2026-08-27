@@ -94,6 +94,7 @@ export function useAIAnalysis(isActive, videoRef, selectedExercise) {
     symmetry: 96,
     status: 'success', // 'success', 'warning'
     feedback: 'Stand in frame to begin tracking.',
+    direction: 'NONE',
     primaryAngle: 170,
     secondaryAngle: 172,
     hipAngle: 175,
@@ -161,9 +162,13 @@ export function useAIAnalysis(isActive, videoRef, selectedExercise) {
 
       wsRef.current.onmessage = (event) => {
         const data = JSON.parse(event.data);
+        
+        // Only speak if the feedback instruction has changed from the last spoken text!
+        // The SpeechQueueManager already handles the 4-second identical-text debounce.
         if (data.feedback) {
           voiceQueue.speak(data.feedback);
         }
+        
         setSessionData(prev => ({
           ...prev,
           rep: data.rep ?? prev.rep,
@@ -171,6 +176,7 @@ export function useAIAnalysis(isActive, videoRef, selectedExercise) {
           symmetry: data.symmetry ?? prev.symmetry,
           status: data.status ?? prev.status,
           feedback: data.feedback ?? prev.feedback,
+          direction: data.direction ?? prev.direction,
           primaryAngle: data.kneeAngle ?? data.elbowAngle ?? data.hipAngle ?? prev.primaryAngle,
           secondaryAngle: data.rightKneeAngle ?? prev.secondaryAngle,
           torsoAngle: data.torsoAngle ?? prev.torsoAngle,

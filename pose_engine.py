@@ -34,12 +34,16 @@ VISIBILITY_THRESHOLD = 0.5
 
 
 def calculate_angle(a, b, c):
-    """Angle at vertex b, formed by points a-b-c, in degrees (0-180)."""
+    """Angle at vertex b, formed by points a-b-c, using true 3D geometry."""
     a, b, c = np.array(a), np.array(b), np.array(c)
-    radians = np.arctan2(c[1] - b[1], c[0] - b[0]) - np.arctan2(a[1] - b[1], a[0] - b[0])
-    angle = np.abs(radians * 180.0 / np.pi)
-    if angle > 180.0:
-        angle = 360.0 - angle
+    
+    ba = a - b
+    bc = c - b
+    
+    cosine_angle = np.dot(ba, bc) / (np.linalg.norm(ba) * np.linalg.norm(bc) + 1e-6)
+    cosine_angle = np.clip(cosine_angle, -1.0, 1.0)
+    angle = np.arccos(cosine_angle) * 180.0 / np.pi
+    
     return round(float(angle), 2)
 
 
@@ -47,7 +51,7 @@ import time
 
 class PoseEngine:
     def __init__(self, static_image_mode=False, model_complexity=1,
-                 min_detection_confidence=0.2, min_tracking_confidence=0.2):
+                 min_detection_confidence=0.5, min_tracking_confidence=0.5):
 
         self.mp = mp
         self.vision = mp.tasks.vision
@@ -72,24 +76,34 @@ class PoseEngine:
     def close(self):
         self.landmarker.close()
 
-    def _angles_from_landmarks(self, lm):
-        """All the angle math, in one place. lm = list of NormalizedLandmark"""
+    def _angles_from_landmarks(self, lm, world_lm):
+        """All the angle math, in one place. lm = list of NormalizedLandmark, world_lm = list of Landmark (meters)"""
 
-        def pt(name):
+        # For 3D Angle Calculation (immune to perspective distortion)
+        def pt3d(name):
+            p = world_lm[LM[name]]
+            return [p.x, p.y, p.z]
+
+        # For 2D Visibility and UI drawing
+        def vis(name):
             p = lm[LM[name]]
-            return [p.x, p.y], getattr(p, 'presence_confidence', getattr(p, 'visibility', 1.0))
+            return getattr(p, 'presence_confidence', getattr(p, 'visibility', 1.0))
 
-        (l_sh, v_l_sh), (r_sh, v_r_sh) = pt("l_shoulder"), pt("r_shoulder")
-        (l_elbow, v_l_elbow), (r_elbow, v_r_elbow) = pt("l_elbow"), pt("r_elbow")
-        (l_wrist, v_l_wrist), (r_wrist, v_r_wrist) = pt("l_wrist"), pt("r_wrist")
-        (l_hip, v_l_hip), (r_hip, v_r_hip) = pt("l_hip"), pt("r_hip")
-        (l_knee, v_l_knee), (r_knee, v_r_knee) = pt("l_knee"), pt("r_knee")
-        (l_ankle, v_l_ankle), (r_ankle, v_r_ankle) = pt("l_ankle"), pt("r_ankle")
+        l_sh, r_sh = pt3d("l_shoulder"), pt3d("r_shoulder")
+        l_elbow, r_elbow = pt3d("l_elbow"), pt3d("r_elbow")
+        l_wrist, r_wrist = pt3d("l_wrist"), pt3d("r_wrist")
+        l_hip, r_hip = pt3d("l_hip"), pt3d("r_hip")
+        l_knee, r_knee = pt3d("l_knee"), pt3d("r_knee")
+        l_ankle, r_ankle = pt3d("l_ankle"), pt3d("r_ankle")
+        
+        v_l_sh, v_r_sh = vis("l_shoulder"), vis("r_shoulder")
+        v_l_hip, v_r_hip = vis("l_hip"), vis("r_hip")
+        v_l_knee, v_r_knee = vis("l_knee"), vis("r_knee")
 
         # Virtual point directly above each hip, used only to measure
-        # how far the torso leans away from vertical.
-        l_up = [l_hip[0], l_hip[1] - 1]
-        r_up = [r_hip[0], r_hip[1] - 1]
+        # how far the torso leans away from vertical in 3D space.
+        l_up = [l_hip[0], l_hip[1] - 1.0, l_hip[2]]
+        r_up = [r_hip[0], r_hip[1] - 1.0, r_hip[2]]
 
         angles = {
             "left_knee_angle": calculate_angle(l_hip, l_knee, l_ankle),
@@ -149,9 +163,9 @@ class PoseEngine:
         self.last_timestamp = timestamp_ms
 
         results = self.landmarker.detect_for_video(mp_image, timestamp_ms)
-        if not results.pose_landmarks:
+        if not results.pose_landmarks or not results.pose_world_landmarks:
             return None
-        return self._angles_from_landmarks(results.pose_landmarks[0])
+        return self._angles_from_landmarks(results.pose_landmarks[0], results.pose_world_landmarks[0])
 
     def process_frame_with_overlay(self, frame_bgr):
         """
@@ -162,11 +176,12 @@ class PoseEngine:
         """
         rgb = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2RGB)
         results = self.pose.process(rgb)
-        if not results.pose_landmarks:
+        if not results.pose_landmarks or not results.pose_world_landmarks:
             return None
 
         lm = results.pose_landmarks.landmark
-        angles = self._angles_from_landmarks(lm)
+        world_lm = results.pose_world_landmarks.landmark
+        angles = self._angles_from_landmarks(lm, world_lm)
 
         self.mp_drawing.draw_landmarks(
             frame_bgr, results.pose_landmarks, self.mp_pose.POSE_CONNECTIONS,

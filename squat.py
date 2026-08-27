@@ -9,7 +9,7 @@ class SquatAnalyzer:
 
     def update(self, angle, torso_angle=0.0):
         if self.state == 'STANDING':
-            if angle < 155:
+            if angle < 150:
                 self.state = 'DESCENDING'
                 self.start_angle = angle
                 self.lowest_angle_in_rep = angle
@@ -21,15 +21,15 @@ class SquatAnalyzer:
             
             if self.state == 'DESCENDING' and angle <= 100:
                 self.state = 'BOTTOM'
-            elif self.state == 'DESCENDING' and angle > 100 and angle >= 155:
+            elif self.state == 'DESCENDING' and angle > 100 and angle >= 150:
                 # Early return without reaching bottom, check if sufficient ROM to count as a bad rep
-                if self.start_angle - self.lowest_angle_in_rep >= 45:
+                if self.start_angle - self.lowest_angle_in_rep >= 35:
                     self._count_rep()
                 self.state = 'STANDING'
             elif self.state == 'BOTTOM' and angle > 100:
                 self.state = 'ASCENDING'
-            elif self.state == 'ASCENDING' and angle >= 155:
-                if self.start_angle - self.lowest_angle_in_rep >= 45:
+            elif self.state == 'ASCENDING' and angle >= 150:
+                if self.start_angle - self.lowest_angle_in_rep >= 35:
                     self._count_rep()
                 self.state = 'STANDING'
 
@@ -63,6 +63,19 @@ class SquatAnalyzer:
             'errors': errors,
             'feedback': feedback
         })
+
+    def get_realtime_guidance(self):
+        """Maps the current squat state to a real-time UI instruction and arrow direction."""
+        if self.state == 'STANDING':
+            return {"instruction": "↓ Squat down slowly", "direction": "DOWN"}
+        elif self.state == 'DESCENDING':
+            return {"instruction": "↓ Keep going deeper", "direction": "DOWN"}
+        elif self.state == 'BOTTOM':
+            return {"instruction": "✓ Good depth! Push up", "direction": "HOLD"}
+        elif self.state == 'ASCENDING':
+            return {"instruction": "↑ Stand up straight", "direction": "UP"}
+        
+        return {"instruction": "Ready", "direction": "NONE"}
 
     def get_session_results(self):
         avg_score = sum(r['score'] for r in self.rep_details) / self.reps if self.reps > 0 else 0.0

@@ -8,7 +8,7 @@ class LegExtensionAnalyzer:
 
     def update(self, angle, *args):
         if self.state == 'BENT':
-            if angle > 120:
+            if angle > 140:
                 self.state = 'EXTENDING'
                 self.start_angle = angle
                 self.highest_angle_in_rep = angle
@@ -17,14 +17,14 @@ class LegExtensionAnalyzer:
             
             if self.state == 'EXTENDING' and angle >= 160:
                 self.state = 'PEAK'
-            elif self.state == 'EXTENDING' and angle <= 120:
-                if self.highest_angle_in_rep - self.start_angle >= 30:
+            elif self.state == 'EXTENDING' and angle <= 140:
+                if self.highest_angle_in_rep - self.start_angle >= 15:
                     self._count_rep()
                 self.state = 'BENT'
             elif self.state == 'PEAK' and angle < 160:
                 self.state = 'RETURNING'
-            elif self.state == 'RETURNING' and angle <= 120:
-                if self.highest_angle_in_rep - self.start_angle >= 30:
+            elif self.state == 'RETURNING' and angle <= 140:
+                if self.highest_angle_in_rep - self.start_angle >= 15:
                     self._count_rep()
                 self.state = 'BENT'
 
@@ -34,7 +34,7 @@ class LegExtensionAnalyzer:
         errors = []
         rom = max(0, self.highest_angle_in_rep - self.start_angle)
         
-        if self.highest_angle_in_rep < 160:
+        if self.highest_angle_in_rep < 155:
             score -= 20
             errors.append('incomplete_extension')
             
@@ -51,6 +51,19 @@ class LegExtensionAnalyzer:
             'errors': errors,
             'feedback': feedback
         })
+
+    def get_realtime_guidance(self):
+        """Maps the current state to a real-time UI instruction and arrow direction."""
+        if self.state == 'BENT':
+            return {"instruction": "↑ Raise your leg", "direction": "UP"}
+        elif self.state == 'EXTENDING':
+            return {"instruction": "↑ Keep going", "direction": "UP"}
+        elif self.state == 'PEAK':
+            return {"instruction": "✓ Good! Hold", "direction": "HOLD"}
+        elif self.state == 'RETURNING':
+            return {"instruction": "↓ Slowly lower your leg", "direction": "DOWN"}
+        
+        return {"instruction": "Ready", "direction": "NONE"}
 
     def get_session_results(self):
         avg_score = sum(r['score'] for r in self.rep_details) / self.reps if self.reps > 0 else 0.0
