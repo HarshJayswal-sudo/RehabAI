@@ -1,13 +1,13 @@
 <div align="center">
 
-# RehabAI 🏋️♀️🤖
+# PhysioAssist 🏋️♀️🤖
 
 ### RECOVER. REBUILD. RISE.
 
 ```text
 ┌──────────────────────────────────────────┐
 │                                          │
-│          REHABAI LIVE SESSION            │
+│          PhysioAssist LIVE SESSION            │
 │                                          │
 │       [camera + pose skeleton]           │
 │                                          │
@@ -61,13 +61,13 @@ But outside the clinic, patients may perform exercises with:
 
 A simple webcam can capture movement — but raw video alone doesn't understand whether the movement is correct.
 
-### That's where RehabAI comes in.
+### That's where PhysioAssist comes in.
 
 ---
 
 ## 💡 The Solution
 
-**RehabAI transforms a standard webcam into an AI-assisted rehabilitation coach.**
+**PhysioAssist transforms a standard webcam into an AI-assisted rehabilitation coach.**
 
 The platform uses computer vision and pose estimation to understand human movement in real time.
 
@@ -77,7 +77,7 @@ Instead of:
 
 > "Do 10 squats."
 
-RehabAI can tell you:
+PhysioAssist can tell you:
 
 > **"Bend deeper."**
 
@@ -143,7 +143,7 @@ A modern React interface designed for desktop, laptop, tablet, and mobile screen
 
 # 🧠 How It Works
 
-RehabAI follows a real-time movement-analysis pipeline:
+PhysioAssist follows a real-time movement-analysis pipeline:
 
 ```text
               WEBCAM
@@ -196,7 +196,7 @@ RehabAI follows a real-time movement-analysis pipeline:
 
 ### Example
 
-During a squat, RehabAI can analyze:
+During a squat, PhysioAssist can analyze:
 
 ```text
 Left Knee Angle      88°
@@ -248,7 +248,7 @@ Form Rules
 Feedback
 ```
 
-This makes it possible to expand RehabAI with additional rehabilitation exercises without rebuilding the entire system.
+This makes it possible to expand PhysioAssist with additional rehabilitation exercises without rebuilding the entire system.
 
 ---
 
@@ -280,7 +280,7 @@ PROGRESS TRACKING
 
 ### Live Session
 
-The core experience places the user in front of their webcam while RehabAI displays:
+The core experience places the user in front of their webcam while PhysioAssist displays:
 
 ```text
 ┌──────────────────────────────────────┐
@@ -308,10 +308,10 @@ The interface is designed to feel like a **personal AI training environment**, n
 
 # 🏗️ Architecture
 
-RehabAI follows a client-server architecture with a clear separation between the AI engine and user interface.
+PhysioAssist follows a client-server architecture with a clear separation between the AI engine and user interface.
 
 ```text
-                     REHABAI
+                     PhysioAssist
                         │
              ┌──────────┴──────────┐
              │                     │
@@ -392,7 +392,7 @@ Exercise-specific movement thresholds and baseline parameters are stored as stru
 # 📂 Project Structure
 
 ```text
-RehabAI/
+PhysioAssist/
 │
 ├── frontend/                        # 🎨 Modern React Web Application
 │   ├── public/                      # Static assets
@@ -433,8 +433,8 @@ Make sure you have:
 ## 1. Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/RehabAI.git
-cd RehabAI
+git clone https://github.com/your-username/PhysioAssist.git
+cd PhysioAssist
 ```
 
 ---
@@ -572,7 +572,7 @@ The frontend transforms these machine-readable results into a human-readable coa
 
 # 🔐 Privacy & Safety
 
-RehabAI is an AI-assisted rehabilitation prototype and is **not a replacement for a licensed physical therapist or medical professional**.
+PhysioAssist is an AI-assisted rehabilitation prototype and is **not a replacement for a licensed physical therapist or medical professional**.
 
 The application is intended to provide movement guidance and feedback, not medical diagnosis or treatment.
 
@@ -625,7 +625,7 @@ frontend/package.json
 
 Built collaboratively with ❤️ for the hackathon.
 
-**RehabAI Team**
+**PhysioAssist Team**
 
 > Turning every movement into measurable progress.
 

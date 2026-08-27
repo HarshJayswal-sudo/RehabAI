@@ -23,7 +23,7 @@ const Sidebar = ({ currentView, navigateTo }) => {
     }}>
       <div style={{ padding: '0 32px', marginBottom: '60px' }}>
         <h1 style={{ letterSpacing: '1px', fontWeight: 800, fontSize: '24px', color: '#111827' }}>
-          Rehab<span className="text-accent">AI</span>
+          Physio<span className="text-accent">Assist</span>
         </h1>
       </div>
 

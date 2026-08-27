@@ -179,7 +179,7 @@ class ErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    console.error("RehabAI UI Error:", error, errorInfo);
+    console.error("PhysioAssist UI Error:", error, errorInfo);
   }
 
   render() {

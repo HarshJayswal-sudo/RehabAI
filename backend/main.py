@@ -1,5 +1,5 @@
 """
-RehabAI Backend Entry Point
+PhysioAssist Backend Entry Point
 ---------------------------
 Exposes the modular FastAPI application from `app.main`.
 Allows running via:

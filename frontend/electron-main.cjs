@@ -10,7 +10,7 @@ function createWindow() {
     height: 800,
     minWidth: 1024,
     minHeight: 768,
-    title: 'RehabAI Desktop',
+    title: 'PhysioAssist Desktop',
     autoHideMenuBar: true,
     webPreferences: {
       nodeIntegration: true,

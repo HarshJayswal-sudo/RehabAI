@@ -18,13 +18,13 @@ class WindwheelToeTouchAnalyzer:
             if self.state == 'BENDING' and angle <= 110:
                 self.state = 'BOTTOM'
             elif self.state == 'BENDING' and angle >= 150:
-                if self.start_angle - self.lowest_angle_in_rep >= 30:
+                if self.start_angle - self.lowest_angle_in_rep >= 45:
                     self._count_rep()
                 self.state = 'STANDING'
             elif self.state == 'BOTTOM' and angle > 110:
                 self.state = 'RISING'
             elif self.state == 'RISING' and angle >= 150:
-                if self.start_angle - self.lowest_angle_in_rep >= 30:
+                if self.start_angle - self.lowest_angle_in_rep >= 45:
                     self._count_rep()
                 self.state = 'STANDING'
 

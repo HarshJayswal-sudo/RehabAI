@@ -18,13 +18,13 @@ class BodyweightLungeAnalyzer:
             if self.state == 'DESCENDING' and angle <= 110:
                 self.state = 'BOTTOM'
             elif self.state == 'DESCENDING' and angle >= 150:
-                if self.start_angle - self.lowest_angle_in_rep >= 30:
+                if self.start_angle - self.lowest_angle_in_rep >= 45:
                     self._count_rep()
                 self.state = 'STANDING'
             elif self.state == 'BOTTOM' and angle > 110:
                 self.state = 'ASCENDING'
             elif self.state == 'ASCENDING' and angle >= 150:
-                if self.start_angle - self.lowest_angle_in_rep >= 30:
+                if self.start_angle - self.lowest_angle_in_rep >= 45:
                     self._count_rep()
                 self.state = 'STANDING'
 

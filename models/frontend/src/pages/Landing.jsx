@@ -34,7 +34,7 @@ const Landing = ({ onStart }) => {
                transition={{ duration: 0.8, delay: 0.2 }}
                style={{ letterSpacing: '6px', fontSize: '13px', fontWeight: 800, textTransform: 'uppercase', marginBottom: '25px', color: '#FFF', textShadow: '0 2px 10px rgba(0,0,0,0.3)' }}
              >
-               WELCOME TO REHABAI
+               WELCOME TO PhysioAssist
              </motion.p>
              
              <motion.h1 
@@ -128,7 +128,7 @@ const Landing = ({ onStart }) => {
         </div>
       </section>
 
-      {/* 2.5 HOW IT WORKS (RehabAI Specific Briefing) */}
+      {/* 2.5 HOW IT WORKS (PhysioAssist Specific Briefing) */}
       <section style={{ 
         padding: '120px 0', 
         position: 'relative', 
@@ -143,7 +143,7 @@ const Landing = ({ onStart }) => {
 
         <div className="container" style={{ position: 'relative', zIndex: 1 }}>
           <div style={{ marginBottom: '70px' }}>
-             <h2 style={{ margin: '0 0 15px 0', fontSize: '42px', fontWeight: 900, color: '#111', letterSpacing: '-1px' }}>How RehabAI Works</h2>
+             <h2 style={{ margin: '0 0 15px 0', fontSize: '42px', fontWeight: 900, color: '#111', letterSpacing: '-1px' }}>How PhysioAssist Works</h2>
              <p style={{ maxWidth: '600px', margin: '0 auto', fontSize: '16px', lineHeight: 1.8, color: '#64748B' }}>
                Our advanced computer vision models analyze your movements in real-time through your device's camera. No sensors required. Just you and the AI.
              </p>

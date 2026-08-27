@@ -47,7 +47,7 @@ import time
 
 class PoseEngine:
     def __init__(self, static_image_mode=False, model_complexity=1,
-                 min_detection_confidence=0.5, min_tracking_confidence=0.5):
+                 min_detection_confidence=0.2, min_tracking_confidence=0.2):
 
         self.mp = mp
         self.vision = mp.tasks.vision
@@ -100,13 +100,19 @@ class PoseEngine:
             "right_elbow_angle": calculate_angle(r_sh, r_elbow, r_wrist),
             "left_torso_lean_deg": calculate_angle(l_sh, l_hip, l_up),
             "right_torso_lean_deg": calculate_angle(r_sh, r_hip, r_up),
-             "torso_angle": round((calculate_angle(l_sh, l_hip, l_up) + calculate_angle(r_sh, r_hip, r_up)) / 2, 2)
+             "torso_angle": round((calculate_angle(l_sh, l_hip, l_up) + calculate_angle(r_sh, r_hip, r_up)) / 2, 2),
+             "left_visibility": min(v_l_sh, v_l_hip, v_l_knee),
+             "right_visibility": min(v_r_sh, v_r_hip, v_r_knee)
         }
 
-        # ONLY check core torso for visibility so 'NO PERSON DETECTED' isn't triggered if ankles are out of frame
-        min_visibility = min(v_l_sh, v_r_sh, v_l_hip, v_r_hip)
-        angles["confident"] = bool(min_visibility >= VISIBILITY_THRESHOLD)
-        angles["min_landmark_visibility"] = round(float(min_visibility), 3)
+        # ONLY check core torso for visibility so 'NO PERSON DETECTED' isn't triggered if ankles are out of frame.
+        # Also, use max(left_side, right_side) so that sideways-facing poses aren't dropped!
+        vis_left = min(v_l_sh, v_l_hip)
+        vis_right = min(v_r_sh, v_r_hip)
+        best_side_visibility = max(vis_left, vis_right)
+        
+        angles["confident"] = bool(best_side_visibility >= 0.2)
+        angles["min_landmark_visibility"] = round(float(best_side_visibility), 3)
         
         # Add frontend-compatible landmarks (x, y normalized 0.0 to 1.0)
         angles["landmarks"] = {

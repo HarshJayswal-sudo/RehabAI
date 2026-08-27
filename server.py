@@ -26,7 +26,7 @@ ANALYZERS = {
     'wind_will_toe_touch': WindwheelToeTouchAnalyzer,
 }
 
-app = FastAPI(title="RehabAI API Server")
+app = FastAPI(title="PhysioAssist API Server")
 
 # CORS
 origins = [
@@ -47,13 +47,19 @@ def compute_symmetry(left: float, right: float) -> float:
         return 0.0
     return max(0.0, 100.0 - abs(left - right) * 5.0)
 
-def extract_representative_angle(left: float, right: float, is_flexion: bool = True) -> float:
+def extract_representative_angle(left: float, right: float, left_vis: float = 1.0, right_vis: float = 1.0, is_flexion: bool = True) -> float:
     if left is None and right is None:
         return 0.0
     if left is None:
         return right
     if right is None:
         return left
+        
+    # If one side is significantly more visible than the other (e.g. facing sideways), trust that side exclusively!
+    if left_vis > right_vis + 0.3:
+        return left
+    if right_vis > left_vis + 0.3:
+        return right
         
     if abs(left - right) <= 20:
         return (left + right) / 2.0
@@ -70,6 +76,7 @@ async def websocket_session(websocket: WebSocket):
     engine = PoseEngine()
     analyzer = None
     exercise_type = None
+    smoothed_target_angle = None
     
     try:
         while True:
@@ -85,6 +92,7 @@ async def websocket_session(websocket: WebSocket):
                     exercise_type = ex
                     if ex in ANALYZERS:
                         analyzer = ANALYZERS[ex]()
+                        smoothed_target_angle = None # Reset EMA
                     else:
                         await websocket.send_json({"status": "warning", "feedback": f"Unknown exercise: {ex}"})
                         continue
@@ -123,45 +131,56 @@ async def websocket_session(websocket: WebSocket):
                 symmetry = 100.0
                 target_angle = 0.0
                 
+                l_vis = angles.get('left_visibility', 1.0)
+                r_vis = angles.get('right_visibility', 1.0)
+                
                 if exercise_type == 'squat':
                     left = angles.get('left_knee_angle', 0)
                     right = angles.get('right_knee_angle', 0)
-                    target_angle = extract_representative_angle(left, right, is_flexion=True)
+                    target_angle = extract_representative_angle(left, right, l_vis, r_vis, is_flexion=True)
                     symmetry = compute_symmetry(left, right)
                     kneeAngle = target_angle
                     
                 elif exercise_type == 'leg_extension':
                     left = angles.get('left_knee_angle', 0)
                     right = angles.get('right_knee_angle', 0)
-                    target_angle = extract_representative_angle(left, right, is_flexion=False)
+                    target_angle = extract_representative_angle(left, right, l_vis, r_vis, is_flexion=False)
                     symmetry = compute_symmetry(left, right)
                     kneeAngle = target_angle
                     
                 elif exercise_type == 'lunges':
                     left = angles.get('left_knee_angle', 0)
                     right = angles.get('right_knee_angle', 0)
-                    target_angle = extract_representative_angle(left, right, is_flexion=True)
+                    target_angle = extract_representative_angle(left, right, l_vis, r_vis, is_flexion=True)
                     symmetry = compute_symmetry(left, right)
                     kneeAngle = target_angle
                     
                 elif exercise_type == 'wind_will_toe_touch':
                     left = angles.get('left_hip_angle', 0)
                     right = angles.get('right_hip_angle', 0)
-                    target_angle = extract_representative_angle(left, right, is_flexion=True)
+                    target_angle = extract_representative_angle(left, right, l_vis, r_vis, is_flexion=True)
                     symmetry = compute_symmetry(left, right)
                     hipAngle = target_angle
                     
                 elif exercise_type == 'wall_push_up':
                     left = angles.get('left_elbow_angle', 0)
                     right = angles.get('right_elbow_angle', 0)
-                    target_angle = extract_representative_angle(left, right, is_flexion=True)
+                    target_angle = extract_representative_angle(left, right, l_vis, r_vis, is_flexion=True)
                     symmetry = compute_symmetry(left, right)
                     kneeAngle = target_angle  # Display elbow angle in the kneeAngle field
                     
-                if exercise_type == 'squat':
-                    analyzer.update(target_angle, torsoAngle)
+                # Apply EMA smoothing to the primary tracking angle
+                alpha = 0.4
+                if 'smoothed_target_angle' not in locals() or smoothed_target_angle is None:
+                    smoothed_target_angle = target_angle
                 else:
-                    analyzer.update(target_angle)
+                    smoothed_target_angle = (alpha * target_angle) + ((1 - alpha) * smoothed_target_angle)
+
+                # Send smoothed angle to the analyzer state machine
+                if exercise_type == 'squat':
+                    analyzer.update(smoothed_target_angle, torsoAngle)
+                else:
+                    analyzer.update(smoothed_target_angle)
                 
                 # Compute live metrics from analyzer state
                 results = analyzer.get_session_results()

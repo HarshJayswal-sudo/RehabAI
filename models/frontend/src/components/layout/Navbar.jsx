@@ -26,7 +26,7 @@ const Navbar = ({ currentView, navigateTo }) => {
         {/* Logo Section */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '14px', cursor: 'pointer' }} onClick={() => navigateTo('landing')}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '42px', height: '42px', backgroundColor: '#FFF', borderRadius: '50%', boxShadow: '0 4px 10px rgba(0,0,0,0.05)' }}>
-             <img src={iconImg} alt="RehabAI" style={{ height: '24px' }} />
+             <img src={iconImg} alt="PhysioAssist" style={{ height: '24px' }} />
           </div>
           <h1 style={{ fontSize: '26px', fontWeight: 900, margin: 0, letterSpacing: '-0.5px', fontFamily: 'var(--font-heading)', color: '#111' }}>
             Rehab<span style={{ background: 'linear-gradient(135deg, var(--accent-color) 0%, #a8b2f0 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>AI</span>

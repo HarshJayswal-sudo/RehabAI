@@ -39,7 +39,7 @@ app.include_router(websocket.router)
 @app.get("/")
 def root():
     return {
-        "message": "RehabAI Backend is running!",
+        "message": "PhysioAssist Backend is running!",
         "docs": "/docs",
         "api_prefix": settings.API_V1_STR,
     }

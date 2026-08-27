@@ -1,5 +1,5 @@
 """
-Pipeline Module for RehabAI Exercise Analysis.
+Pipeline Module for PhysioAssist Exercise Analysis.
 
 This module provides batch processing capabilities to read pre-computed joint angle
 JSON files (extracted from video frames), pass them through exercise-specific state-machine

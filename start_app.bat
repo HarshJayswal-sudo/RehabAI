@@ -1,5 +1,5 @@
 @echo off
-echo Starting RehabAI Backend and Desktop App...
+echo Starting PhysioAssist Backend and Desktop App...
 
 set PATH=C:\Program Files\nodejs;%PATH%
 cd /d "%~dp0"

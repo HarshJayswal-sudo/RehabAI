@@ -19,15 +19,15 @@ const Footer = () => {
           {/* Brand Info */}
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '25px' }}>
-              <img src={iconImg} alt="RehabAI Logo" style={{ height: '32px' }} />
-              <h2 style={{ fontSize: '22px', fontWeight: 800, margin: 0, color: '#111', letterSpacing: '-0.5px' }}>RehabAI</h2>
+              <img src={iconImg} alt="PhysioAssist Logo" style={{ height: '32px' }} />
+              <h2 style={{ fontSize: '22px', fontWeight: 800, margin: 0, color: '#111', letterSpacing: '-0.5px' }}>PhysioAssist</h2>
             </div>
             <p style={{ color: '#666', fontSize: '14px', lineHeight: 1.8, marginBottom: '20px', maxWidth: '300px' }}>
               Advanced computer vision and precise AI tracking for your optimal physical rehabilitation and wellness journey.
             </p>
             <div style={{ color: '#666', fontSize: '13px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <span>Available 24/7 Globally</span>
-              <span>support@rehabai.com</span>
+              <span>support@PhysioAssist.com</span>
             </div>
           </div>
           
@@ -72,7 +72,7 @@ const Footer = () => {
         {/* Bottom Bar */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '30px' }}>
           <div style={{ color: '#888', fontSize: '13px' }}>
-            &copy; 2026 RehabAI Technologies. All rights reserved.
+            &copy; 2026 PhysioAssist Technologies. All rights reserved.
           </div>
           <div style={{ display: 'flex', gap: '25px' }}>
              <a href="#" style={{ color: '#888', textDecoration: 'none', fontSize: '13px', transition: 'color 0.3s' }} onMouseOver={(e) => e.target.style.color = 'var(--accent-color)'} onMouseOut={(e) => e.target.style.color = '#888'}>Privacy Policy</a>

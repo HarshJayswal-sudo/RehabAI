@@ -240,6 +240,89 @@ const Session = ({ selectedExercise: initialExercise, onEnd, onCancel }) => {
         ctx.fillText(text, point.x - textWidth / 2, point.y - 15);
       };
 
+      // 4. Draw Guide Arcs for Joint Movement (Speedometer style gauge around the joint)
+      const drawGuideGauge = (jointPoint, currentAngle) => {
+        if (!jointPoint || typeof currentAngle === 'undefined' || currentAngle === null) return;
+        
+        let targetAngle = 100;
+        let isExtension = false;
+        
+        if (activeExercise?.id === 'squat' || activeExercise?.id === 'lunges') {
+          targetAngle = 100; 
+        } else if (activeExercise?.id === 'leg_extension') {
+          targetAngle = 160;
+          isExtension = true;
+        } else if (activeExercise?.id === 'wall_push_up' || activeExercise?.id === 'wind_will_toe_touch') {
+          targetAngle = 110;
+        }
+
+        const radius = 45;
+        
+        // Draw background track (light gray)
+        ctx.beginPath();
+        ctx.arc(jointPoint.x, jointPoint.y, radius, Math.PI, 0); // half circle gauge
+        ctx.lineWidth = 6;
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+        ctx.shadowBlur = 0;
+        ctx.stroke();
+
+        // Calculate fill percentage based on angle
+        let progress = 0;
+        if (isExtension) {
+          progress = (currentAngle - 90) / (targetAngle - 90);
+        } else {
+          progress = (180 - currentAngle) / (180 - targetAngle);
+        }
+        progress = Math.max(0, Math.min(1, progress));
+
+        const endAngle = Math.PI + (progress * Math.PI); // sweeps from left to right
+
+        // Green if target reached, otherwise orange
+        const isTargetReached = progress >= 0.95;
+        const color = isTargetReached ? 'rgba(16, 185, 129, 0.9)' : 'rgba(249, 115, 22, 0.9)';
+
+        // Draw progress arc
+        if (progress > 0) {
+          ctx.beginPath();
+          ctx.arc(jointPoint.x, jointPoint.y, radius, Math.PI, endAngle);
+          ctx.lineWidth = 6;
+          ctx.strokeStyle = color;
+          ctx.shadowColor = color;
+          ctx.shadowBlur = 10;
+          ctx.stroke();
+          
+          // Draw arrowhead tip
+          const tipX = jointPoint.x + radius * Math.cos(endAngle);
+          const tipY = jointPoint.y + radius * Math.sin(endAngle);
+          
+          // Draw a triangle arrowhead
+          const arrowAngle = endAngle + Math.PI / 2; // tangent
+          ctx.beginPath();
+          ctx.moveTo(tipX + 8 * Math.cos(arrowAngle), tipY + 8 * Math.sin(arrowAngle));
+          ctx.lineTo(tipX - 8 * Math.cos(arrowAngle), tipY - 8 * Math.sin(arrowAngle));
+          ctx.lineTo(tipX + 12 * Math.cos(endAngle), tipY + 12 * Math.sin(endAngle)); // Pointing forward along path
+          ctx.fillStyle = '#FFFFFF';
+          ctx.fill();
+        }
+        
+        // Draw Target Marker
+        ctx.beginPath();
+        ctx.arc(jointPoint.x + radius, jointPoint.y, 4, 0, Math.PI * 2);
+        ctx.fillStyle = isTargetReached ? '#10B981' : '#FFFFFF';
+        ctx.fill();
+      };
+
+      if (activeExercise?.id === 'wall_push_up') {
+        if (lElbow) drawGuideGauge(lElbow, data.primaryAngle);
+        if (rElbow) drawGuideGauge(rElbow, data.secondaryAngle);
+      } else if (activeExercise?.id === 'wind_will_toe_touch') {
+        if (lHip) drawGuideGauge(lHip, data.primaryAngle);
+        if (rHip) drawGuideGauge(rHip, data.secondaryAngle);
+      } else {
+        if (lKnee) drawGuideGauge(lKnee, data.primaryAngle);
+        if (rKnee) drawGuideGauge(rKnee, data.secondaryAngle);
+      }
+
       if (activeExercise?.id === 'wall_push_up') {
         if (lElbow) drawAngleBadge(lElbow, data.primaryAngle, 'L Elbow');
         if (rElbow) drawAngleBadge(rElbow, data.secondaryAngle, 'R Elbow');

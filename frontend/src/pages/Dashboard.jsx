@@ -492,7 +492,7 @@ const Dashboard = ({ onStartSession, onSelectExercise, onViewExercises, onViewHi
                   <div style={{ border: '1px solid #E2E8F0', borderRadius: '16px', padding: '18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
                       <div style={{ fontWeight: 800, fontSize: '15px', color: '#111' }}>Dr. Sarah Jenkins, PT, DPT</div>
-                      <div style={{ fontSize: '12px', color: '#64748B' }}>drsarah@rehabai.com • Orthopedic Specialist</div>
+                      <div style={{ fontSize: '12px', color: '#64748B' }}>drsarah@PhysioAssist.com • Orthopedic Specialist</div>
                     </div>
                     <button
                       onClick={() => handleRequestDoctor(1)}

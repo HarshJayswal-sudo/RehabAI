@@ -8,7 +8,7 @@ class LegExtensionAnalyzer:
 
     def update(self, angle, *args):
         if self.state == 'BENT':
-            if angle > 100:
+            if angle > 120:
                 self.state = 'EXTENDING'
                 self.start_angle = angle
                 self.highest_angle_in_rep = angle
@@ -17,13 +17,13 @@ class LegExtensionAnalyzer:
             
             if self.state == 'EXTENDING' and angle >= 160:
                 self.state = 'PEAK'
-            elif self.state == 'EXTENDING' and angle <= 100:
+            elif self.state == 'EXTENDING' and angle <= 120:
                 if self.highest_angle_in_rep - self.start_angle >= 30:
                     self._count_rep()
                 self.state = 'BENT'
             elif self.state == 'PEAK' and angle < 160:
                 self.state = 'RETURNING'
-            elif self.state == 'RETURNING' and angle <= 100:
+            elif self.state == 'RETURNING' and angle <= 120:
                 if self.highest_angle_in_rep - self.start_angle >= 30:
                     self._count_rep()
                 self.state = 'BENT'

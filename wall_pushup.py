@@ -18,13 +18,13 @@ class WallPushupAnalyzer:
             if self.state == 'BENDING' and angle <= 110:
                 self.state = 'BOTTOM'
             elif self.state == 'BENDING' and angle >= 155:
-                if self.start_angle - self.lowest_angle_in_rep >= 30:
+                if self.start_angle - self.lowest_angle_in_rep >= 45:
                     self._count_rep()
                 self.state = 'STRAIGHT'
             elif self.state == 'BOTTOM' and angle > 110:
                 self.state = 'PUSHING'
             elif self.state == 'PUSHING' and angle >= 155:
-                if self.start_angle - self.lowest_angle_in_rep >= 30:
+                if self.start_angle - self.lowest_angle_in_rep >= 45:
                     self._count_rep()
                 self.state = 'STRAIGHT'
 

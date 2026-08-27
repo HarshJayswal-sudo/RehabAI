@@ -23,13 +23,13 @@ class SquatAnalyzer:
                 self.state = 'BOTTOM'
             elif self.state == 'DESCENDING' and angle > 100 and angle >= 155:
                 # Early return without reaching bottom, check if sufficient ROM to count as a bad rep
-                if self.start_angle - self.lowest_angle_in_rep >= 30:
+                if self.start_angle - self.lowest_angle_in_rep >= 45:
                     self._count_rep()
                 self.state = 'STANDING'
             elif self.state == 'BOTTOM' and angle > 100:
                 self.state = 'ASCENDING'
             elif self.state == 'ASCENDING' and angle >= 155:
-                if self.start_angle - self.lowest_angle_in_rep >= 30:
+                if self.start_angle - self.lowest_angle_in_rep >= 45:
                     self._count_rep()
                 self.state = 'STANDING'
 

@@ -1,4 +1,4 @@
 """
-AI & Computer Vision Package for RehabAI
+AI & Computer Vision Package for PhysioAssist
 """
 
