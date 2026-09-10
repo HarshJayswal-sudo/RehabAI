@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Pause, Square, Play, VideoOff, Scan, Activity, Maximize, AlertCircle, Flame, CheckCircle, Sparkles } from 'lucide-react';
+import { ArrowLeft, Pause, Square, Play, VideoOff, Scan, Activity, Maximize, AlertCircle, Flame, CheckCircle, Sparkles, RefreshCw } from 'lucide-react';
 import { useAIAnalysis } from '../hooks/useAIAnalysis';
 import { api } from '../services/api';
 import { EXERCISES } from '../data/exercises';
@@ -65,37 +65,47 @@ const Session = ({ selectedExercise: initialExercise, onEnd, onCancel }) => {
   const [errorMessage, setErrorMessage] = useState('');
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [sessionId, setSessionId] = useState(null);
+  const [facingMode, setFacingMode] = useState('user'); // 'user' (selfie) or 'environment' (back camera)
 
   // Initialize camera
-  useEffect(() => {
-    const startCamera = async () => {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ 
-          video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } } 
-        });
-        streamRef.current = stream;
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-        }
-        setCameraStatus('active');
-        
-        // Start backend session tracking with exercise ID
-        const targetId = activeExercise.numericId || activeExercise.id || 1;
-        api.startSession(targetId)
-           .then(res => setSessionId(res?.id || 1))
-           .catch(err => {
-             console.warn("Using offline session id", err);
-             setSessionId(Date.now());
-           });
-           
-      } catch (err) {
-        console.error("Error accessing camera:", err);
-        setCameraStatus('error');
-        setErrorMessage(err.message || 'Camera access denied or not available.');
+  const startCamera = async (mode = facingMode) => {
+    try {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
       }
-    };
+      setCameraStatus('requesting');
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { facingMode: mode, width: { ideal: 1280 }, height: { ideal: 720 } } 
+      });
+      streamRef.current = stream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+      setCameraStatus('active');
+    } catch (err) {
+      console.error("Error accessing camera:", err);
+      setCameraStatus('error');
+      setErrorMessage(err.message || 'Camera access denied or not available.');
+    }
+  };
 
-    startCamera();
+  const toggleCameraFacing = async () => {
+    const nextMode = facingMode === 'user' ? 'environment' : 'user';
+    setFacingMode(nextMode);
+    await startCamera(nextMode);
+  };
+
+  useEffect(() => {
+    startCamera(facingMode);
+
+    // Start backend session tracking with exercise ID
+    const targetId = activeExercise.numericId || activeExercise.id || 1;
+    api.startSession(targetId)
+       .then(res => setSessionId(res?.id || 1))
+       .catch(err => {
+         console.warn("Using offline session id", err);
+         setSessionId(Date.now());
+       });
 
     return () => {
       if (streamRef.current) {
@@ -127,14 +137,16 @@ const Session = ({ selectedExercise: initialExercise, onEnd, onCancel }) => {
       const strokeColor = (data.formScore || 95) >= 90 ? '#10B981' : ((data.formScore || 95) >= 75 ? '#F59E0B' : '#EF4444');
       const boneGlow = (data.formScore || 95) >= 90 ? 'rgba(16, 185, 129, 0.4)' : 'rgba(239, 68, 68, 0.4)';
 
-      // Safe point converter with EMA Smoothing
+      // Safe point converter with EMA Smoothing and Front/Back Camera mirroring
       const lerp = (start, end, amt) => (1 - amt) * start + amt * end;
+      const isFront = facingMode === 'user';
       
       const pt = (p, name) => {
         if (!p || typeof p.x !== 'number' || typeof p.y !== 'number' || isNaN(p.x) || isNaN(p.y)) {
           return null;
         }
-        const targetX = Math.max(0, Math.min(w, (1 - p.x) * w));
+        // If front camera, mirror X axis. If rear/environment camera, keep natural orientation.
+        const targetX = Math.max(0, Math.min(w, isFront ? (1 - p.x) * w : p.x * w));
         const targetY = Math.max(0, Math.min(h, p.y * h));
 
         if (!smoothedLandmarksRef.current[name]) {
@@ -396,25 +408,22 @@ const Session = ({ selectedExercise: initialExercise, onEnd, onCancel }) => {
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: '#F4F6F9', paddingTop: '120px', paddingBottom: '40px' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: '#F4F6F9', paddingTop: '95px', paddingBottom: '30px' }}>
       
-      <div style={{ maxWidth: '1440px', margin: '0 auto', width: '100%', padding: '0 30px', display: 'flex', gap: '30px', height: 'calc(100vh - 160px)' }}>
+      <div className="session-container-responsive" style={{ maxWidth: '1440px', margin: '0 auto', width: '100%', padding: '0 16px' }}>
         
         {/* Left: AI Camera & Skeleton View */}
         <motion.div 
+          className="session-camera-responsive"
           style={isFullscreen ? {
             position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999,
-            backgroundColor: '#0F172A', display: 'flex', flexDirection: 'column'
-          } : { 
-            flex: 2.2, position: 'relative', borderRadius: '32px', overflow: 'hidden',
-            backgroundColor: '#0F172A', boxShadow: '0 20px 50px rgba(0,0,0,0.1)',
-            display: 'flex', flexDirection: 'column'
-          }}
+            backgroundColor: '#0F172A', display: 'flex', flexDirection: 'column', height: '100vh', borderRadius: 0
+          } : undefined}
           initial={{ opacity: 0, x: -30 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
         >
-          {/* Live Mirrored Video */}
+          {/* Live Mirrored / Natural Video */}
           <video 
             ref={videoRef} 
             autoPlay 
@@ -422,7 +431,7 @@ const Session = ({ selectedExercise: initialExercise, onEnd, onCancel }) => {
             muted 
             style={{ 
               position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', 
-              objectFit: 'cover', zIndex: 0, transform: 'scaleX(-1)',
+              objectFit: 'cover', zIndex: 0, transform: facingMode === 'user' ? 'scaleX(-1)' : 'none',
               display: cameraStatus === 'active' ? 'block' : 'none'
             }} 
           />
@@ -458,111 +467,110 @@ const Session = ({ selectedExercise: initialExercise, onEnd, onCancel }) => {
 
           {/* Phase 1: Dynamic Calibration Overlay */}
           {phase === 'calibrating' && cameraStatus === 'active' && (
-            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(15, 23, 42, 0.75)', backdropFilter: 'blur(10px)', zIndex: 15, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '30px', textAlign: 'center' }}>
+            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(15, 23, 42, 0.75)', backdropFilter: 'blur(10px)', zIndex: 15, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px', textAlign: 'center' }}>
               
-              <div style={{ position: 'relative', width: '260px', height: '380px', border: '2px dashed #38BDF8', borderRadius: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', marginBottom: '30px' }}>
+              <div style={{ position: 'relative', width: '220px', height: '320px', border: '2px dashed #38BDF8', borderRadius: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', marginBottom: '20px' }}>
                 <motion.div animate={{ scale: [1, 1.05, 1], opacity: [0.6, 1, 0.6] }} transition={{ repeat: Infinity, duration: 2 }}>
-                  <Scan size={64} color="#38BDF8" />
+                  <Scan size={56} color="#38BDF8" />
                 </motion.div>
-                <div style={{ position: 'absolute', bottom: '15px', color: '#38BDF8', fontSize: '12px', fontWeight: 800, letterSpacing: '1px' }}>
+                <div style={{ position: 'absolute', bottom: '15px', color: '#38BDF8', fontSize: '11px', fontWeight: 800, letterSpacing: '1px' }}>
                   BODY ALIGNMENT BOX
                 </div>
               </div>
 
-              <h2 style={{ fontSize: '28px', fontWeight: 900, color: '#FFF', margin: '0 0 10px 0' }}>
-                Calibrating Camera Baseline
+              <h2 style={{ fontSize: '24px', fontWeight: 900, color: '#FFF', margin: '0 0 10px 0' }}>
+                Calibrating Baseline
               </h2>
-              <p style={{ fontSize: '15px', color: '#94A3B8', maxWidth: '480px', margin: '0 0 25px 0', lineHeight: 1.6 }}>
-                {activeExercise.cameraGuide} Stand upright in the frame for a quick posture calibration.
+              <p style={{ fontSize: '14px', color: '#94A3B8', maxWidth: '440px', margin: '0 0 20px 0', lineHeight: 1.6 }}>
+                {activeExercise.cameraGuide} Stand in frame to calibrate posture.
               </p>
 
-              <div style={{ width: '320px', height: '8px', backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: '4px', overflow: 'hidden', marginBottom: '25px' }}>
+              <div style={{ width: '280px', height: '8px', backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: '4px', overflow: 'hidden', marginBottom: '20px' }}>
                 <motion.div 
-                  style={{ height: '100%', backgroundColor: 'var(--accent-color)', borderRadius: '4px' }}
-                  animate={{ width: `${calibrationProgress}%` }}
+                  style={{ width: `${calibrationProgress}%`, height: '100%', backgroundColor: '#38BDF8', borderRadius: '4px' }}
+                  transition={{ ease: "linear" }}
                 />
               </div>
 
-              <button
-                onClick={() => setPhase('countdown')}
-                className="btn btn-primary"
-                style={{ padding: '14px 35px', borderRadius: '50px', fontSize: '14px', fontWeight: 800 }}
-              >
-                Skip to Workout →
-              </button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#38BDF8', fontSize: '13px', fontWeight: 700 }}>
+                <Activity size={16} /> Scanning: {calibrationProgress}%
+              </div>
             </div>
           )}
 
-          {/* Phase 2: 3-2-1 Countdown Overlay */}
+          {/* Phase 2: Countdown 3-2-1 Overlay */}
           {phase === 'countdown' && (
-            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(12px)', zIndex: 15, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-              <motion.div
+            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(15, 23, 42, 0.65)', backdropFilter: 'blur(8px)', zIndex: 15, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+              <motion.div 
                 key={countdown}
                 initial={{ scale: 0.4, opacity: 0 }}
                 animate={{ scale: 1.2, opacity: 1 }}
                 exit={{ scale: 1.8, opacity: 0 }}
                 transition={{ duration: 0.7, type: 'spring' }}
-                style={{ fontSize: '120px', fontWeight: 900, color: 'var(--accent-color)', fontFamily: 'var(--font-heading)' }}
+                style={{ fontSize: '100px', fontWeight: 900, color: 'var(--accent-color)', fontFamily: 'var(--font-heading)' }}
               >
                 {countdown > 0 ? countdown : 'GO!'}
               </motion.div>
-              <div style={{ color: '#FFF', fontSize: '18px', fontWeight: 700, marginTop: '20px', letterSpacing: '1px' }}>
+              <div style={{ color: '#FFF', fontSize: '16px', fontWeight: 700, marginTop: '16px', letterSpacing: '1px' }}>
                 STARTING {activeExercise.name.toUpperCase()}
               </div>
             </div>
           )}
 
           {/* Top Controls Overlay */}
-          <div style={{ position: 'relative', zIndex: 10, padding: '25px 30px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div style={{ display: 'flex', gap: '10px' }}>
+          <div style={{ position: 'relative', zIndex: 10, padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
               <button 
                 onClick={() => {
                   if (streamRef.current) streamRef.current.getTracks().forEach(track => track.stop());
                   onCancel();
                 }} 
-                style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.2)', color: '#FFF', padding: '10px 20px', borderRadius: '50px', cursor: 'pointer', fontWeight: 700, fontSize: '13px' }}
+                style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.2)', color: '#FFF', padding: '8px 16px', borderRadius: '50px', cursor: 'pointer', fontWeight: 700, fontSize: '12px', touchAction: 'manipulation' }}
               >
                 <ArrowLeft size={16} /> Exit
               </button>
+
+              {/* Camera Flip Button (Mobile & Desktop) */}
+              <button 
+                onClick={toggleCameraFacing} 
+                title={`Switch to ${facingMode === 'user' ? 'Rear' : 'Front'} Camera`}
+                style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.2)', color: '#FFF', padding: '8px 14px', borderRadius: '50px', cursor: 'pointer', fontWeight: 700, fontSize: '12px', touchAction: 'manipulation' }}
+              >
+                <RefreshCw size={14} /> <span className="hide-mobile">{facingMode === 'user' ? 'Rear Cam' : 'Front Cam'}</span>
+              </button>
             </div>
             
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(10px)', padding: '10px 22px', borderRadius: '50px', border: '1px solid rgba(255,255,255,0.1)' }}>
-              <motion.div animate={{ opacity: [1, 0.3, 1] }} transition={{ repeat: Infinity, duration: 1.5 }} style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#10B981', boxShadow: '0 0 10px #10B981' }} />
-              <span style={{ color: '#FFF', fontWeight: 800, fontSize: '12px', letterSpacing: '1px' }}>
-                AI VISION: {activeExercise.name.toUpperCase()}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(10px)', padding: '8px 16px', borderRadius: '50px', border: '1px solid rgba(255,255,255,0.1)' }}>
+              <motion.div animate={{ opacity: [1, 0.3, 1] }} transition={{ repeat: Infinity, duration: 1.5 }} style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#10B981', boxShadow: '0 0 10px #10B981' }} />
+              <span style={{ color: '#FFF', fontWeight: 800, fontSize: '11px', letterSpacing: '0.5px' }}>
+                {activeExercise.name.toUpperCase()}
               </span>
-              <span style={{ color: '#94A3B8', fontSize: '12px', borderLeft: '1px solid rgba(255,255,255,0.2)', paddingLeft: '10px', fontFamily: 'monospace' }}>
-                ⏱️ {formatTime(sessionSeconds)}
+              <span style={{ color: '#94A3B8', fontSize: '11px', borderLeft: '1px solid rgba(255,255,255,0.2)', paddingLeft: '8px', fontFamily: 'monospace' }}>
+                {formatTime(sessionSeconds)}
               </span>
             </div>
             
             <button 
               onClick={toggleFullscreen} 
-              style={{ background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.2)', color: '#FFF', width: '42px', height: '42px', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', cursor: 'pointer' }}
+              style={{ background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.2)', color: '#FFF', width: '38px', height: '38px', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', cursor: 'pointer', touchAction: 'manipulation' }}
             >
-              <Maximize size={18} />
+              <Maximize size={16} />
             </button>
           </div>
 
         </motion.div>
 
         {/* Right: Metrics Panel */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <div className="session-metrics-responsive">
           
           {/* Repetition Card */}
           <motion.div 
-            style={{ position: 'relative', backgroundColor: '#FFF', borderRadius: '28px', padding: '32px 24px', textAlign: 'center', boxShadow: '0 15px 40px rgba(100,114,217,0.08)', border: '1px solid rgba(100,114,217,0.05)', overflow: 'hidden' }} 
+            style={{ position: 'relative', backgroundColor: '#FFF', borderRadius: '28px', padding: '24px', textAlign: 'center', boxShadow: '0 15px 40px rgba(100,114,217,0.08)', border: '1px solid rgba(100,114,217,0.05)', overflow: 'hidden' }} 
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
           >
             <div style={{ position: 'absolute', top: '-10%', left: '-10%', width: '200px', height: '200px', backgroundImage: `url(${bgLeft})`, backgroundRepeat: 'no-repeat', backgroundSize: 'contain', opacity: 0.12, zIndex: 0 }} />
             
             {data.status === 'success' && <FireBurst key={data.rep} />}
-            
-            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '10px', position: 'relative', zIndex: 1 }}>
-              <div style={{ backgroundColor: 'rgba(100,114,217,0.1)', padding: '10px', borderRadius: '50%' }}>
-                <Activity color="var(--accent-color)" size={24} />
-              </div>
-            </div>
             
             <div style={{ position: 'relative', zIndex: 1, fontWeight: 800, letterSpacing: '2px', fontSize: '12px', color: '#64748B', textTransform: 'uppercase', marginBottom: '4px' }}>
               Valid Repetitions

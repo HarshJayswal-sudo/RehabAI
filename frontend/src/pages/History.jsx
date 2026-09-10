@@ -77,67 +77,69 @@ const History = ({ historyList, onStartExercise }) => {
   const streakText = sessions.length === 0 ? '0 Days' : `${uniqueDays} ${uniqueDays === 1 ? 'Day' : 'Days'} 🔥`;
 
   return (
-    <div style={{ position: 'relative', minHeight: '100vh', backgroundColor: '#F8F9FA', paddingTop: '130px', paddingBottom: '80px', overflowX: 'hidden' }}>
+    <div style={{ position: 'relative', minHeight: '100vh', backgroundColor: '#F8F9FA', paddingTop: '95px', paddingBottom: '70px', overflowX: 'hidden' }}>
       
       {/* Ambience */}
       <div style={{ position: 'absolute', left: '-5%', top: '10%', width: '400px', height: '600px', backgroundImage: `url(${bgLeft})`, backgroundRepeat: 'no-repeat', backgroundSize: 'contain', opacity: 0.35, pointerEvents: 'none', zIndex: 0 }} />
       <div style={{ position: 'absolute', right: '-5%', bottom: '5%', width: '400px', height: '500px', backgroundImage: `url(${bgRight})`, backgroundRepeat: 'no-repeat', backgroundSize: 'contain', opacity: 0.3, pointerEvents: 'none', zIndex: 0 }} />
 
-      <div className="container" style={{ position: 'relative', zIndex: 1, maxWidth: '1200px', margin: '0 auto', padding: '0 20px' }}>
+      <div className="container" style={{ position: 'relative', zIndex: 1, maxWidth: '1200px', margin: '0 auto', padding: '0 16px' }}>
         
         {/* Header */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} style={{ marginBottom: '40px' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', backgroundColor: 'var(--accent-light)', padding: '6px 16px', borderRadius: '50px', color: 'var(--accent-color)', fontWeight: 700, fontSize: '13px', marginBottom: '15px' }}>
-            <HistoryIcon size={16} /> SESSION RECORDS & LOGS
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} style={{ marginBottom: '30px' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', backgroundColor: 'var(--accent-light)', padding: '6px 16px', borderRadius: '50px', color: 'var(--accent-color)', fontWeight: 700, fontSize: '12px', marginBottom: '12px' }}>
+            <HistoryIcon size={15} /> SESSION RECORDS & LOGS
           </div>
-          <h1 style={{ fontSize: '38px', fontWeight: 900, color: '#111', margin: '0 0 12px 0', letterSpacing: '-1px' }}>
+          <h1 style={{ fontSize: '32px', fontWeight: 900, color: '#111', margin: '0 0 10px 0', letterSpacing: '-0.8px' }}>
             Workout History & Analytics
           </h1>
-          <p style={{ fontSize: '16px', color: '#64748B', maxWidth: '700px', margin: 0 }}>
+          <p style={{ fontSize: '15px', color: '#64748B', maxWidth: '700px', margin: 0 }}>
             Track every completed rehabilitation routine, measure form improvement over time, and maintain your recovery streak.
           </p>
         </motion.div>
 
         {/* Stats Strip */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px', marginBottom: '40px' }}>
-          <div style={{ backgroundColor: '#FFF', borderRadius: '20px', padding: '24px', boxShadow: '0 10px 30px rgba(0,0,0,0.03)', border: '1px solid #E2E8F0' }}>
-            <div style={{ fontSize: '12px', fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>Total Sessions</div>
-            <div style={{ fontSize: '32px', fontWeight: 900, color: '#111', marginTop: '6px' }}>{sessions.length}</div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '14px', marginBottom: '30px' }}>
+          <div style={{ backgroundColor: '#FFF', borderRadius: '16px', padding: '18px 20px', boxShadow: '0 10px 30px rgba(0,0,0,0.03)', border: '1px solid #E2E8F0' }}>
+            <div style={{ fontSize: '11px', fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>Total Sessions</div>
+            <div style={{ fontSize: '26px', fontWeight: 900, color: '#111', marginTop: '4px' }}>{sessions.length}</div>
           </div>
 
-          <div style={{ backgroundColor: '#FFF', borderRadius: '20px', padding: '24px', boxShadow: '0 10px 30px rgba(0,0,0,0.03)', border: '1px solid #E2E8F0' }}>
-            <div style={{ fontSize: '12px', fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>Total Reps Logged</div>
-            <div style={{ fontSize: '32px', fontWeight: 900, color: 'var(--accent-color)', marginTop: '6px' }}>{totalReps}</div>
+          <div style={{ backgroundColor: '#FFF', borderRadius: '16px', padding: '18px 20px', boxShadow: '0 10px 30px rgba(0,0,0,0.03)', border: '1px solid #E2E8F0' }}>
+            <div style={{ fontSize: '11px', fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>Total Reps</div>
+            <div style={{ fontSize: '26px', fontWeight: 900, color: 'var(--accent-color)', marginTop: '4px' }}>{totalReps}</div>
           </div>
 
-          <div style={{ backgroundColor: '#FFF', borderRadius: '20px', padding: '24px', boxShadow: '0 10px 30px rgba(0,0,0,0.03)', border: '1px solid #E2E8F0' }}>
-            <div style={{ fontSize: '12px', fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>Avg Form Score</div>
-            <div style={{ fontSize: '32px', fontWeight: 900, color: '#10B981', marginTop: '6px' }}>{avgScore > 0 ? `${avgScore}%` : '—'}</div>
+          <div style={{ backgroundColor: '#FFF', borderRadius: '16px', padding: '18px 20px', boxShadow: '0 10px 30px rgba(0,0,0,0.03)', border: '1px solid #E2E8F0' }}>
+            <div style={{ fontSize: '11px', fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>Avg Form Score</div>
+            <div style={{ fontSize: '26px', fontWeight: 900, color: '#10B981', marginTop: '4px' }}>{avgScore > 0 ? `${avgScore}%` : '—'}</div>
           </div>
 
-          <div style={{ backgroundColor: '#FFF', borderRadius: '20px', padding: '24px', boxShadow: '0 10px 30px rgba(0,0,0,0.03)', border: '1px solid #E2E8F0' }}>
-            <div style={{ fontSize: '12px', fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>Active Streak</div>
-            <div style={{ fontSize: '32px', fontWeight: 900, color: '#F59E0B', marginTop: '6px' }}>{streakText}</div>
+          <div style={{ backgroundColor: '#FFF', borderRadius: '16px', padding: '18px 20px', boxShadow: '0 10px 30px rgba(0,0,0,0.03)', border: '1px solid #E2E8F0' }}>
+            <div style={{ fontSize: '11px', fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>Active Streak</div>
+            <div style={{ fontSize: '26px', fontWeight: 900, color: '#F59E0B', marginTop: '4px' }}>{streakText}</div>
           </div>
         </div>
 
         {/* Filters */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px', marginBottom: '30px' }}>
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', marginBottom: '24px' }}>
+          <div className="scroll-touch-x" style={{ display: 'flex', gap: '8px', maxWidth: '100%', paddingBottom: '4px' }}>
             {['All', 'Bodyweight Squat', 'Bodyweight Lunge', 'Wall Push-Up', 'Seated Leg Extension', 'Windmill Toe Touch'].map(cat => (
               <button
                 key={cat}
                 onClick={() => setFilterExercise(cat)}
                 style={{
-                  padding: '8px 18px',
+                  padding: '8px 16px',
                   borderRadius: '50px',
                   border: filterExercise === cat ? '1px solid var(--accent-color)' : '1px solid #E2E8F0',
                   backgroundColor: filterExercise === cat ? 'var(--accent-color)' : '#FFFFFF',
                   color: filterExercise === cat ? '#FFFFFF' : '#475569',
                   fontWeight: 700,
-                  fontSize: '13px',
+                  fontSize: '12px',
                   cursor: 'pointer',
-                  transition: 'all 0.2s'
+                  whiteSpace: 'nowrap',
+                  transition: 'all 0.2s',
+                  touchAction: 'manipulation'
                 }}
               >
                 {cat}
@@ -145,7 +147,7 @@ const History = ({ historyList, onStartExercise }) => {
             ))}
           </div>
 
-          <div style={{ position: 'relative', minWidth: '260px' }}>
+          <div style={{ position: 'relative', flex: '1 1 240px', minWidth: '220px' }}>
             <Search size={16} color="#94A3B8" style={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', left: '16px' }} />
             <input
               type="text"
@@ -179,7 +181,8 @@ const History = ({ historyList, onStartExercise }) => {
               <p style={{ color: '#64748B', margin: 0 }}>Complete your first rehabilitation session to see your history here.</p>
             </div>
           ) : (
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+            <div className="table-responsive">
+            <table style={{ width: '100%', minWidth: '660px', borderCollapse: 'collapse', textAlign: 'left' }}>
               <thead>
                 <tr style={{ backgroundColor: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
                   <th style={{ padding: '18px 24px', fontSize: '12px', fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>Date</th>
@@ -257,6 +260,7 @@ const History = ({ historyList, onStartExercise }) => {
                 ))}
               </tbody>
             </table>
+            </div>
           )}
         </div>
 

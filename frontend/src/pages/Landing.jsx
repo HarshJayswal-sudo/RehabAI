@@ -37,61 +37,61 @@ const Landing = ({ onStart }) => {
                WELCOME TO PhysioAssist
              </motion.p>
              
-             <motion.h1 
-               variants={{
-                 hidden: { opacity: 0 },
-                 visible: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.3 } }
-               }}
-               initial="hidden"
-               animate="visible"
-               style={{ fontSize: '85px', fontWeight: 900, lineHeight: 1.05, marginBottom: '40px', fontFamily: 'var(--font-heading)', color: '#FFF', textShadow: '0 5px 30px rgba(0,0,0,0.5)', letterSpacing: '-1.5px', maxWidth: '800px' }}
-             >
-               {"What hurts today makes you stronger tomorrow".split(' ').map((word, index) => (
-                 <motion.span 
-                   key={index} 
-                   variants={{
-                     hidden: { opacity: 0, y: 50, rotateX: 45, filter: 'blur(10px)' },
-                     visible: { opacity: 1, y: 0, rotateX: 0, filter: 'blur(0px)', transition: { type: "spring", damping: 15, stiffness: 150 } }
-                   }}
-                   style={{ display: 'inline-block', marginRight: '20px', perspective: '1000px' }}
-                 >
-                   {word}
-                 </motion.span>
-               ))}
-             </motion.h1>
-             
-             <motion.div
-               initial={{ opacity: 0, y: 30 }}
-               animate={{ opacity: 1, y: 0 }}
-               transition={{ duration: 0.8, delay: 1.2, type: "spring" }}
-             >
-               <motion.button 
-                 whileHover={{ scale: 1.05, backgroundColor: '#4C58B3' }}
-                 whileTap={{ scale: 0.95 }}
-                 className="btn btn-primary" 
-                 style={{ padding: '18px 45px', fontSize: '15px', fontWeight: 800, letterSpacing: '1px', borderRadius: '50px', boxShadow: '0 15px 40px rgba(100,114,217,0.5)', transition: 'background-color 0.3s' }} 
-                 onClick={onStart}
-               >
-                 DISCOVER MORE
-               </motion.button>
-             </motion.div>
-          </div>
+              <motion.h1 
+                variants={{
+                  hidden: { opacity: 0 },
+                  visible: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.3 } }
+                }}
+                initial="hidden"
+                animate="visible"
+                style={{ fontSize: 'clamp(32px, 7vw, 76px)', fontWeight: 900, lineHeight: 1.1, marginBottom: '35px', fontFamily: 'var(--font-heading)', color: '#FFF', textShadow: '0 5px 30px rgba(0,0,0,0.5)', letterSpacing: '-1.2px', maxWidth: '800px' }}
+              >
+                {"What hurts today makes you stronger tomorrow".split(' ').map((word, index) => (
+                  <motion.span 
+                    key={index} 
+                    variants={{
+                      hidden: { opacity: 0, y: 50, rotateX: 45, filter: 'blur(10px)' },
+                      visible: { opacity: 1, y: 0, rotateX: 0, filter: 'blur(0px)', transition: { type: "spring", damping: 15, stiffness: 150 } }
+                    }}
+                    style={{ display: 'inline-block', marginRight: 'clamp(8px, 1.5vw, 18px)', perspective: '1000px' }}
+                  >
+                    {word}
+                  </motion.span>
+                ))}
+              </motion.h1>
+              
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 1.2, type: "spring" }}
+              >
+                <motion.button 
+                  whileHover={{ scale: 1.05, backgroundColor: '#4C58B3' }}
+                  whileTap={{ scale: 0.95 }}
+                  className="btn btn-primary" 
+                  style={{ padding: '16px 36px', fontSize: '14px', fontWeight: 800, letterSpacing: '1px', borderRadius: '50px', boxShadow: '0 15px 40px rgba(100,114,217,0.5)', transition: 'background-color 0.3s' }} 
+                  onClick={onStart}
+                >
+                  DISCOVER MORE
+                </motion.button>
+              </motion.div>
+           </div>
         </div>
       </section>
 
       {/* 2. FEATURES GRID (Enjoy All Aspects) */}
       {/* 2. SERVICES / FEATURES */}
-      <section style={{ padding: '100px 0', textAlign: 'center', position: 'relative', backgroundColor: '#FFFFFF' }}>
+      <section style={{ padding: '80px 0', textAlign: 'center', position: 'relative', backgroundColor: '#FFFFFF' }}>
         <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '300px', backgroundImage: "url(" + bgLeft + ")", backgroundRepeat: 'no-repeat', backgroundPosition: 'left center', opacity: 0.7, zIndex: 0 }} />
         <div style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: '300px', backgroundImage: "url(" + bgRight + ")", backgroundRepeat: 'no-repeat', backgroundPosition: 'right center', opacity: 0.7, zIndex: 0 }} />
         
         <div className="container" style={{ position: 'relative', zIndex: 1 }}>
-          <div style={{ marginBottom: '60px' }}>
-             <img src={iconImg} alt="Icon" style={{ height: '40px', marginBottom: '20px' }} />
+          <div style={{ marginBottom: '50px' }}>
+             <img src={iconImg} alt="Icon" style={{ height: '36px', marginBottom: '16px' }} />
              <h2 className="section-title" style={{ margin: 0 }}>Enjoy All Aspects Of AI Training</h2>
           </div>
           
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '20px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '20px' }}>
             {[
               { icon: s1, title: 'Live Tracking', desc: 'Real-time pose estimation and tracking.' },
               { icon: s2, title: 'Form Correction', desc: 'Instant feedback to prevent injury.' },
@@ -142,17 +142,17 @@ const Landing = ({ onStart }) => {
         <div style={{ position: 'absolute', bottom: '10%', right: '10%', width: '450px', height: '450px', background: 'radial-gradient(circle, rgba(16,185,129,0.12) 0%, rgba(255,255,255,0) 70%)', zIndex: 0 }} />
 
         <div className="container" style={{ position: 'relative', zIndex: 1 }}>
-          <div style={{ marginBottom: '70px' }}>
-             <h2 style={{ margin: '0 0 15px 0', fontSize: '42px', fontWeight: 900, color: '#111', letterSpacing: '-1px' }}>How PhysioAssist Works</h2>
-             <p style={{ maxWidth: '600px', margin: '0 auto', fontSize: '16px', lineHeight: 1.8, color: '#64748B' }}>
+          <div style={{ marginBottom: '45px' }}>
+             <h2 style={{ margin: '0 0 12px 0', fontSize: 'clamp(28px, 5vw, 42px)', fontWeight: 900, color: '#111', letterSpacing: '-1px' }}>How PhysioAssist Works</h2>
+             <p style={{ maxWidth: '600px', margin: '0 auto', fontSize: '15px', lineHeight: 1.7, color: '#64748B' }}>
                Our advanced computer vision models analyze your movements in real-time through your device's camera. No sensors required. Just you and the AI.
              </p>
           </div>
           
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '40px', position: 'relative' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '30px', position: 'relative' }}>
             
             {/* Connecting Line behind cards (visible on desktop) */}
-            <div style={{ position: 'absolute', top: '80px', left: '15%', right: '15%', height: '2px', background: 'linear-gradient(90deg, rgba(100,114,217,0) 0%, rgba(100,114,217,0.2) 50%, rgba(100,114,217,0) 100%)', zIndex: 0 }} />
+            <div className="hide-mobile" style={{ position: 'absolute', top: '80px', left: '15%', right: '15%', height: '2px', background: 'linear-gradient(90deg, rgba(100,114,217,0) 0%, rgba(100,114,217,0.2) 50%, rgba(100,114,217,0) 100%)', zIndex: 0 }} />
 
             {[
               { step: '01', title: 'Start Your Camera', desc: 'Securely connect your webcam or mobile camera. Video is processed locally on your device for total privacy.', color: '#6472D9' },
@@ -169,7 +169,7 @@ const Landing = ({ onStart }) => {
                 style={{ 
                   backgroundColor: 'rgba(255, 255, 255, 0.9)', 
                   backdropFilter: 'blur(20px)',
-                  padding: '50px 40px', 
+                  padding: '40px 24px', 
                   borderRadius: '24px', 
                   position: 'relative',
                   border: '1px solid rgba(255,255,255,1)',
@@ -181,17 +181,17 @@ const Landing = ({ onStart }) => {
                 }}
               >
                 {/* Massive Watermark Number */}
-                <div style={{ fontSize: '140px', fontWeight: 900, color: `${item.color}15`, position: 'absolute', top: '5%', right: '5%', lineHeight: 1, zIndex: 0, pointerEvents: 'none', transform: 'rotate(-5deg)' }}>
+                <div style={{ fontSize: '120px', fontWeight: 900, color: `${item.color}15`, position: 'absolute', top: '5%', right: '5%', lineHeight: 1, zIndex: 0, pointerEvents: 'none', transform: 'rotate(-5deg)' }}>
                   {item.step}
                 </div>
                 
                 {/* Glowing Number Badge */}
-                <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: `linear-gradient(135deg, ${item.color} 0%, ${item.color}ee 100%)`, color: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '26px', fontWeight: 800, marginBottom: '35px', boxShadow: `0 10px 25px ${item.color}50`, position: 'relative', zIndex: 1 }}>
+                <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: `linear-gradient(135deg, ${item.color} 0%, ${item.color}ee 100%)`, color: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px', fontWeight: 800, marginBottom: '28px', boxShadow: `0 10px 25px ${item.color}50`, position: 'relative', zIndex: 1 }}>
                   {i + 1}
                 </div>
                 
-                <h4 style={{ fontSize: '22px', fontWeight: 800, color: '#111', marginBottom: '15px', position: 'relative', zIndex: 1 }}>{item.title}</h4>
-                <p style={{ fontSize: '15px', lineHeight: 1.7, color: '#64748B', position: 'relative', zIndex: 1, margin: 0 }}>{item.desc}</p>
+                <h4 style={{ fontSize: '20px', fontWeight: 800, color: '#111', marginBottom: '12px', position: 'relative', zIndex: 1 }}>{item.title}</h4>
+                <p style={{ fontSize: '14px', lineHeight: 1.6, color: '#64748B', position: 'relative', zIndex: 1, margin: 0 }}>{item.desc}</p>
               </motion.div>
             ))}
           </div>
@@ -200,7 +200,7 @@ const Landing = ({ onStart }) => {
 
       {/* 3. WHAT WE DO (Progress Bars & Image) */}
       <section style={{ 
-        padding: '120px 0', 
+        padding: '80px 0', 
         position: 'relative',
         backgroundColor: '#FFF',
         overflow: 'hidden'
@@ -209,15 +209,15 @@ const Landing = ({ onStart }) => {
         <div style={{ position: 'absolute', left: '-5%', top: '-15%', width: '800px', height: '800px', backgroundImage: `url(${bgLeft})`, backgroundRepeat: 'no-repeat', backgroundSize: 'contain', opacity: 0.7, zIndex: 0 }} />
         <div style={{ position: 'absolute', right: '-5%', bottom: '-10%', width: '600px', height: '600px', backgroundImage: `url(${bgRight})`, backgroundRepeat: 'no-repeat', backgroundSize: 'contain', opacity: 0.6, zIndex: 0 }} />
         
-        <div className="container" style={{ display: 'flex', alignItems: 'center', gap: '80px', position: 'relative', zIndex: 1 }}>
+        <div className="container" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '40px', position: 'relative', zIndex: 1 }}>
           
           {/* Left: Transparent Image */}
-          <div style={{ flex: 1, position: 'relative', zIndex: 1, display: 'flex', justifyContent: 'center' }}>
-            <img src={aboutImg} alt="Yoga Pose" style={{ width: '100%', maxWidth: '500px', height: 'auto', display: 'block', filter: 'drop-shadow(0 20px 30px rgba(0,0,0,0.15))', position: 'relative', zIndex: 2 }} />
+          <div style={{ flex: '1 1 300px', position: 'relative', zIndex: 1, display: 'flex', justifyContent: 'center' }}>
+            <img src={aboutImg} alt="Yoga Pose" style={{ width: '100%', maxWidth: '440px', height: 'auto', display: 'block', filter: 'drop-shadow(0 20px 30px rgba(0,0,0,0.15))', position: 'relative', zIndex: 2 }} />
           </div>
 
           {/* Right: Text and Progress Bars */}
-          <div style={{ flex: 1, paddingLeft: '20px', position: 'relative', zIndex: 2 }}>
+          <div style={{ flex: '1 1 300px', position: 'relative', zIndex: 2 }}>
             <div style={{ marginBottom: '15px' }}>
                 <img src={iconImg} alt="Lotus Icon" style={{ width: '30px' }} />
             </div>

@@ -14,7 +14,7 @@ const Footer = () => {
       
       <div className="container" style={{ position: 'relative', zIndex: 1 }}>
         
-        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1.5fr', gap: '50px', paddingBottom: '60px', borderBottom: '1px solid rgba(100,114,217,0.1)' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '40px', paddingBottom: '50px', borderBottom: '1px solid rgba(100,114,217,0.1)' }}>
           
           {/* Brand Info */}
           <div>
@@ -70,7 +70,7 @@ const Footer = () => {
         </div>
         
         {/* Bottom Bar */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '30px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', paddingTop: '30px' }}>
           <div style={{ color: '#888', fontSize: '13px' }}>
             &copy; 2026 PhysioAssist Technologies. All rights reserved.
           </div>

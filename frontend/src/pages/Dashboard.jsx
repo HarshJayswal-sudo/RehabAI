@@ -182,83 +182,95 @@ const Dashboard = ({ onStartSession, onSelectExercise, onViewExercises, onViewHi
 
 
   return (
-    <div style={{ position: 'relative', overflowX: 'hidden', minHeight: '100vh', paddingBottom: '100px', backgroundColor: '#F8F9FA', color: '#111', paddingTop: '130px' }}>
-      <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '400px', backgroundImage: `url(${bgLeft})`, backgroundRepeat: 'no-repeat', backgroundPosition: 'left center', opacity: 0.4, zIndex: 0 }} />
-      
-      <div style={{ maxWidth: '1200px', margin: '0 auto', width: '100%', padding: '0 20px', position: 'relative', zIndex: 1 }}>
-        
-        {/* Top Greeting Header */}
-        <div style={{ marginBottom: '35px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '20px' }}>
-          <div>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: 'var(--accent-color)', fontWeight: 800, fontSize: '13px', textTransform: 'uppercase', marginBottom: '8px' }}>
-              <Sparkles size={16} /> Rehabilitation Dashboard
+    <div style={{ position: 'relative', overflowX: 'hidden', minHeight: '100vh', paddingBottom: '80px', background: 'linear-gradient(180deg, #F5F7FF 0%, #F8FAFC 45%, #F8FAFC 100%)', color: '#111', paddingTop: '95px' }}>
+      <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '420px', backgroundImage: `url(${bgLeft})`, backgroundRepeat: 'no-repeat', backgroundPosition: 'left center', opacity: 0.3, zIndex: 0 }} />
+
+      <div style={{ maxWidth: '1200px', margin: '0 auto', width: '100%', padding: '0 16px', position: 'relative', zIndex: 1 }}>
+        <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'stretch', flexWrap: 'wrap', gap: '16px' }}>
+          <div style={{ flex: '1 1 300px', background: 'linear-gradient(135deg, rgba(100, 114, 217, 0.12), rgba(16, 185, 129, 0.08))', border: '1px solid rgba(100,114,217,0.12)', borderRadius: '24px', padding: '22px 24px', boxShadow: '0 18px 45px rgba(100,114,217,0.08)' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: 'var(--accent-color)', fontWeight: 800, fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1.4px', marginBottom: '12px' }}>
+              <Sparkles size={15} /> Rehabilitation Dashboard
             </div>
-            <h2 style={{ fontSize: '32px', fontWeight: 900, color: '#111', margin: '0 0 8px 0', letterSpacing: '-0.5px' }}>
+            <h2 style={{ fontSize: '28px', fontWeight: 900, color: '#111', margin: '0 0 8px 0', letterSpacing: '-0.6px' }}>
               Welcome back, {user?.name || 'Alex'}
             </h2>
-            <p style={{ margin: 0, fontSize: '15px', color: '#64748B' }}>
-              Here is your AI recovery compliance and daily rehabilitation plan.
+            <p style={{ margin: 0, fontSize: '14px', color: '#64748B', maxWidth: '560px', lineHeight: 1.6 }}>
+              Your motion quality is trending upward. Keep your cadence consistent and maintain the recovery plan today.
             </p>
           </div>
-          
-          <div style={{ display: 'flex', gap: '12px' }}>
-            <button 
-              onClick={onViewExercises} 
-              style={{ padding: '12px 24px', fontSize: '13px', fontWeight: 800, borderRadius: '50px', border: '1px solid #E2E8F0', backgroundColor: '#FFF', color: '#334155', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
-            >
-              <Dumbbell size={16} /> All Exercises
-            </button>
-            <button 
-              onClick={() => onSelectExercise ? onSelectExercise(EXERCISES[0]) : onStartSession()} 
-              className="btn btn-primary" 
-              style={{ padding: '12px 28px', fontSize: '13px', fontWeight: 800, borderRadius: '50px', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 8px 25px rgba(100,114,217,0.3)' }}
-            >
-              <Play size={16} fill="currentColor" /> Quick Workout
-            </button>
+
+          <div style={{ flex: '1 1 240px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: '12px' }}>
+            <div style={{ background: '#FFF', borderRadius: '20px', padding: '16px 20px', border: '1px solid rgba(100,114,217,0.10)', boxShadow: '0 12px 30px rgba(100,114,217,0.06)' }}>
+              <div style={{ fontSize: '11px', letterSpacing: '1.2px', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', marginBottom: '6px' }}>Recovery pulse</div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <div style={{ fontSize: '24px', fontWeight: 900, color: '#111' }}>{avgScore}%</div>
+                  <div style={{ fontSize: '12px', color: '#10B981', fontWeight: 700 }}>+{improvement}% this week</div>
+                </div>
+                <div style={{ width: '48px', height: '48px', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, rgba(100,114,217,0.14), rgba(16,185,129,0.12))', color: '#6472D9' }}>
+                  <Activity size={22} />
+                </div>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button
+                onClick={onViewExercises}
+                style={{ flex: 1, padding: '12px 14px', fontSize: '13px', fontWeight: 800, borderRadius: '14px', border: '1px solid #E2E8F0', backgroundColor: '#FFF', color: '#334155', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+              >
+                <Dumbbell size={15} /> Exercises
+              </button>
+              <button
+                onClick={() => onSelectExercise ? onSelectExercise(EXERCISES[0]) : onStartSession()}
+                className="btn btn-primary"
+                style={{ flex: 1, padding: '12px 14px', fontSize: '13px', fontWeight: 800, borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', boxShadow: '0 8px 25px rgba(100,114,217,0.3)' }}
+              >
+                <Play size={15} fill="currentColor" /> Start
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Quick Exercise Selection Grid */}
-        <div style={{ marginBottom: '35px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-            <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#111', margin: 0 }}>
+        <div style={{ marginBottom: '28px', background: '#FFF', border: '1px solid rgba(100,114,217,0.08)', borderRadius: '24px', padding: '18px 20px', boxShadow: '0 12px 30px rgba(100,114,217,0.05)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '8px' }}>
+            <h3 style={{ fontSize: '17px', fontWeight: 800, color: '#111', margin: 0 }}>
               Select Exercise Routine
             </h3>
-            <button 
-              onClick={onViewExercises} 
+            <button
+              onClick={onViewExercises}
               style={{ background: 'none', border: 'none', color: 'var(--accent-color)', fontWeight: 700, fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
             >
               View all 5 exercises <ArrowRight size={14} />
             </button>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))', gap: '16px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '14px' }}>
             {EXERCISES.map((ex) => (
               <div
                 key={ex.id}
                 onClick={() => onSelectExercise(ex)}
                 style={{
-                  backgroundColor: '#FFF',
-                  borderRadius: '20px',
-                  padding: '16px',
-                  boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
-                  border: '1px solid #E2E8F0',
+                  background: 'linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(244,247,255,0.85) 100%)',
+                  borderRadius: '16px',
+                  padding: '14px',
+                  boxShadow: '0 10px 22px rgba(15, 23, 42, 0.04)',
+                  border: '1px solid rgba(148,163,184,0.18)',
                   cursor: 'pointer',
                   transition: 'all 0.2s ease',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '12px'
+                  gap: '10px'
                 }}
-                onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.borderColor = 'var(--accent-color)'; }}
-                onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = '#E2E8F0'; }}
+                onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.borderColor = 'rgba(100,114,217,0.4)'; e.currentTarget.style.boxShadow = '0 16px 30px rgba(100,114,217,0.12)'; }}
+                onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = 'rgba(148,163,184,0.18)'; e.currentTarget.style.boxShadow = '0 10px 22px rgba(15, 23, 42, 0.04)'; }}
               >
-                <img src={ex.image} alt={ex.name} style={{ width: '50px', height: '50px', borderRadius: '14px', objectFit: 'cover' }} />
+                <img src={ex.image} alt={ex.name} style={{ width: '46px', height: '46px', borderRadius: '12px', objectFit: 'cover' }} />
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: '13px', fontWeight: 800, color: '#111', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  <div style={{ fontSize: '12px', fontWeight: 800, color: '#111', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {ex.name}
                   </div>
                   <div style={{ fontSize: '11px', color: '#10B981', fontWeight: 700, marginTop: '2px' }}>
-                    Target: {ex.idealAngle}
+                    3 sets • {ex.idealAngle}°
                   </div>
                 </div>
               </div>
@@ -266,29 +278,25 @@ const Dashboard = ({ onStartSession, onSelectExercise, onViewExercises, onViewHi
           </div>
         </div>
 
-        {/* Main Stats Grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '30px' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
-            
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
+        <div className="responsive-grid-2col" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '14px' }}>
               <StatCard customIcon={AnimatedTarget} label="Avg Form Accuracy" value={`${avgScore}%`} color="#6472D9" />
               <StatCard customIcon={AnimatedCalendar} label="Total Sessions" value={totalSessions.toString()} color="#10B981" />
               <StatCard customIcon={AnimatedFlame} label="Improvement" value={`+${improvement}%`} color="#F59E0B" />
             </div>
 
-
-            {/* Performance Chart */}
-            <div style={{ backgroundColor: '#FFF', borderRadius: '24px', padding: '30px', boxShadow: '0 10px 30px rgba(100,114,217,0.05)', border: '1px solid rgba(100,114,217,0.05)' }}>
+            <div style={{ backgroundColor: '#FFF', borderRadius: '24px', padding: '30px', boxShadow: '0 12px 30px rgba(100,114,217,0.06)', border: '1px solid rgba(100,114,217,0.08)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
                 <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 700, color: '#111' }}>Form Accuracy Trend</h3>
-                <button 
+                <button
                   onClick={onViewHistory}
-                  style={{ background: 'transparent', border: '1px solid #E2E8F0', padding: '6px 14px', borderRadius: '8px', fontSize: '12px', fontWeight: 700, color: '#64748B', cursor: 'pointer' }}
+                  style={{ background: 'transparent', border: '1px solid #E2E8F0', padding: '7px 14px', borderRadius: '10px', fontSize: '12px', fontWeight: 700, color: '#64748B', cursor: 'pointer' }}
                 >
                   View Log History →
                 </button>
               </div>
-              
+
               <div style={{ width: '100%', height: '300px' }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={activityData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
@@ -307,15 +315,11 @@ const Dashboard = ({ onStartSession, onSelectExercise, onViewExercises, onViewHi
                 </ResponsiveContainer>
               </div>
             </div>
-
           </div>
 
-          {/* Sidebar Column */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
-            
-            {/* Body Symmetry Radar */}
-            <div style={{ backgroundColor: '#FFF', borderRadius: '24px', padding: '30px', boxShadow: '0 10px 30px rgba(100,114,217,0.05)', border: '1px solid rgba(100,114,217,0.05)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+            <div style={{ backgroundColor: '#FFF', borderRadius: '24px', padding: '30px', boxShadow: '0 12px 30px rgba(100,114,217,0.06)', border: '1px solid rgba(100,114,217,0.08)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
                 <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 700, color: '#111' }}>Kinematic Symmetry</h3>
                 <Activity size={20} color="#666" />
               </div>
@@ -331,12 +335,11 @@ const Dashboard = ({ onStartSession, onSelectExercise, onViewExercises, onViewHi
                 </ResponsiveContainer>
               </div>
               <div style={{ marginTop: '10px', textAlign: 'center' }}>
-                 <span style={{ color: '#10B981', fontWeight: 700, fontSize: '13px', backgroundColor: 'rgba(16,185,129,0.1)', padding: '6px 14px', borderRadius: '20px' }}>Balanced posture detected.</span>
+                <span style={{ color: '#10B981', fontWeight: 700, fontSize: '13px', backgroundColor: 'rgba(16,185,129,0.1)', padding: '6px 14px', borderRadius: '20px' }}>Balanced posture detected.</span>
               </div>
             </div>
 
-            {/* Clinical Supervision / Connected Doctor Card */}
-            <div style={{ backgroundColor: '#FFF', borderRadius: '24px', padding: '26px', boxShadow: '0 10px 30px rgba(100,114,217,0.05)', border: '1px solid rgba(100,114,217,0.08)' }}>
+            <div style={{ backgroundColor: '#FFF', borderRadius: '24px', padding: '26px', boxShadow: '0 12px 30px rgba(100,114,217,0.06)', border: '1px solid rgba(100,114,217,0.08)' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#059669', fontWeight: 800, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1px' }}>
                   <Stethoscope size={16} /> Clinical Supervision
@@ -408,8 +411,7 @@ const Dashboard = ({ onStartSession, onSelectExercise, onViewExercises, onViewHi
               )}
             </div>
 
-            {/* Prescribed Routine Recommendation */}
-            <div style={{ backgroundColor: '#FFF', borderRadius: '24px', padding: '26px', position: 'relative', boxShadow: '0 10px 30px rgba(100,114,217,0.05)', border: '1px solid rgba(100,114,217,0.05)' }}>
+            <div style={{ background: 'linear-gradient(135deg, rgba(100,114,217,0.08), rgba(16,185,129,0.08))', borderRadius: '24px', padding: '26px', position: 'relative', boxShadow: '0 12px 30px rgba(100,114,217,0.06)', border: '1px solid rgba(100,114,217,0.08)' }}>
               <div style={{ color: 'var(--accent-color)', fontWeight: 800, fontSize: '11px', letterSpacing: '2px', marginBottom: '8px', textTransform: 'uppercase' }}>
                 Today's Prescribed Routine
               </div>
@@ -419,21 +421,18 @@ const Dashboard = ({ onStartSession, onSelectExercise, onViewExercises, onViewHi
               <p style={{ color: '#64748B', fontSize: '13px', lineHeight: 1.6, marginBottom: '20px' }}>
                 3 sets × 10 reps • Target Knee Flexion 85°-95°. Maintain your active recovery streak!
               </p>
-              <button 
-                onClick={() => onSelectExercise(EXERCISES[0])} 
-                className="btn btn-primary" 
+              <button
+                onClick={() => onSelectExercise(EXERCISES[0])}
+                className="btn btn-primary"
                 style={{ width: '100%', padding: '14px 0', fontSize: '13px', fontWeight: 800, borderRadius: '12px', border: 'none', cursor: 'pointer' }}
               >
                 Start Prescribed Routine
               </button>
             </div>
-
           </div>
         </div>
-
       </div>
 
-      {/* Find & Connect Doctor Modal */}
       <AnimatePresence>
         {isDoctorModalOpen && (
           <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
@@ -456,10 +455,10 @@ const Dashboard = ({ onStartSession, onSelectExercise, onViewExercises, onViewHi
                 maxWidth: '600px',
                 maxHeight: '90vh',
                 backgroundColor: '#FFFFFF',
-                borderRadius: '28px',
+                borderRadius: '24px',
                 boxShadow: '0 25px 60px rgba(0,0,0,0.2)',
                 overflowY: 'auto',
-                padding: '36px'
+                padding: '28px 20px'
               }}
             >
               <button
@@ -488,7 +487,6 @@ const Dashboard = ({ onStartSession, onSelectExercise, onViewExercises, onViewHi
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '25px' }}>
                 {doctorsList.length === 0 ? (
-                  // Fallback demo doctor if none in DB yet
                   <div style={{ border: '1px solid #E2E8F0', borderRadius: '16px', padding: '18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
                       <div style={{ fontWeight: 800, fontSize: '15px', color: '#111' }}>Dr. Sarah Jenkins, PT, DPT</div>
@@ -550,12 +548,10 @@ const Dashboard = ({ onStartSession, onSelectExercise, onViewExercises, onViewHi
                   Done
                 </button>
               </div>
-
             </motion.div>
           </div>
         )}
       </AnimatePresence>
-
     </div>
   );
 };

@@ -346,30 +346,30 @@ const DoctorPortal = ({ onSwitchToPatientView }) => {
         </AnimatePresence>
 
         {/* Top Header */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} style={{ marginBottom: '35px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '20px' }}>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} style={{ marginBottom: '28px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '16px' }}>
           <div>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', backgroundColor: 'rgba(16, 185, 129, 0.1)', padding: '6px 16px', borderRadius: '50px', color: '#059669', fontWeight: 800, fontSize: '13px', marginBottom: '12px' }}>
-              <Stethoscope size={16} /> CLINICAL SUPERVISION PORTAL
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', backgroundColor: 'rgba(16, 185, 129, 0.1)', padding: '6px 16px', borderRadius: '50px', color: '#059669', fontWeight: 800, fontSize: '12px', marginBottom: '10px' }}>
+              <Stethoscope size={15} /> CLINICAL SUPERVISION PORTAL
             </div>
-            <h1 style={{ fontSize: '36px', fontWeight: 900, color: '#111', margin: '0 0 8px 0', letterSpacing: '-0.5px' }}>
+            <h1 style={{ fontSize: 'clamp(24px, 5vw, 36px)', fontWeight: 900, color: '#111', margin: '0 0 6px 0', letterSpacing: '-0.5px' }}>
               Clinician Dashboard
             </h1>
-            <p style={{ fontSize: '15px', color: '#64748B', margin: 0 }}>
-              Logged in as <strong>{user?.name || 'Dr. Sarah Jenkins, PT, DPT'}</strong> • Orthopedic Rehabilitation & Physical Therapy
+            <p style={{ fontSize: '14px', color: '#64748B', margin: 0 }}>
+              Logged in as <strong>{user?.name || 'Dr. Sarah Jenkins, PT, DPT'}</strong> • Orthopedic Physical Therapy
             </p>
           </div>
 
-          <div style={{ display: 'flex', gap: '12px' }}>
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
             <button
               onClick={fetchData}
               style={{
-                padding: '12px 18px',
+                padding: '10px 16px',
                 borderRadius: '50px',
                 border: '1px solid #E2E8F0',
                 backgroundColor: '#FFF',
                 color: '#475569',
                 fontWeight: 700,
-                fontSize: '13px',
+                fontSize: '12px',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
@@ -377,106 +377,110 @@ const DoctorPortal = ({ onSwitchToPatientView }) => {
                 boxShadow: '0 4px 12px rgba(0,0,0,0.03)'
               }}
             >
-              <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Refresh Data
+              <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Refresh
             </button>
 
             <button
               onClick={onSwitchToPatientView}
               style={{
-                padding: '12px 22px',
+                padding: '10px 18px',
                 borderRadius: '50px',
                 border: '1px solid #E2E8F0',
                 backgroundColor: '#FFF',
                 color: '#334155',
                 fontWeight: 800,
-                fontSize: '13px',
+                fontSize: '12px',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px',
+                gap: '6px',
                 boxShadow: '0 4px 15px rgba(0,0,0,0.03)'
               }}
             >
-              ← Switch to Patient View
+              ← Patient View
             </button>
           </div>
         </motion.div>
 
         {/* Clinical KPI Strip */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px', marginBottom: '35px' }}>
-          <div style={{ backgroundColor: '#FFF', borderRadius: '20px', padding: '24px', boxShadow: '0 10px 30px rgba(0,0,0,0.03)', border: '1px solid #E2E8F0' }}>
-            <div style={{ fontSize: '12px', fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>Active Patients</div>
-            <div style={{ fontSize: '32px', fontWeight: 900, color: '#111', marginTop: '6px' }}>{totalActivePatients}</div>
-            <div style={{ fontSize: '12px', color: '#10B981', fontWeight: 700, marginTop: '4px' }}>Under direct clinical care</div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '14px', marginBottom: '28px' }}>
+          <div style={{ backgroundColor: '#FFF', borderRadius: '18px', padding: '20px', boxShadow: '0 10px 30px rgba(0,0,0,0.03)', border: '1px solid #E2E8F0' }}>
+            <div style={{ fontSize: '11px', fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>Active Patients</div>
+            <div style={{ fontSize: '28px', fontWeight: 900, color: '#111', marginTop: '4px' }}>{totalActivePatients}</div>
+            <div style={{ fontSize: '11px', color: '#10B981', fontWeight: 700, marginTop: '2px' }}>Under direct clinical care</div>
           </div>
 
-          <div style={{ backgroundColor: '#FFF', borderRadius: '20px', padding: '24px', boxShadow: '0 10px 30px rgba(0,0,0,0.03)', border: '1px solid #E2E8F0' }}>
-            <div style={{ fontSize: '12px', fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>Pending Requests</div>
-            <div style={{ fontSize: '32px', fontWeight: 900, color: pendingRequests.length > 0 ? '#F59E0B' : '#64748B', marginTop: '6px' }}>
+          <div style={{ backgroundColor: '#FFF', borderRadius: '18px', padding: '20px', boxShadow: '0 10px 30px rgba(0,0,0,0.03)', border: '1px solid #E2E8F0' }}>
+            <div style={{ fontSize: '11px', fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>Pending Requests</div>
+            <div style={{ fontSize: '28px', fontWeight: 900, color: pendingRequests.length > 0 ? '#F59E0B' : '#64748B', marginTop: '4px' }}>
               {pendingRequests.length}
             </div>
-            <div style={{ fontSize: '12px', color: pendingRequests.length > 0 ? '#D97706' : '#64748B', fontWeight: 700, marginTop: '4px' }}>
-              {pendingRequests.length > 0 ? 'Awaiting your approval' : 'All requests processed'}
+            <div style={{ fontSize: '11px', color: pendingRequests.length > 0 ? '#D97706' : '#64748B', fontWeight: 700, marginTop: '2px' }}>
+              {pendingRequests.length > 0 ? 'Awaiting approval' : 'All processed'}
             </div>
           </div>
 
-          <div style={{ backgroundColor: '#FFF', borderRadius: '20px', padding: '24px', boxShadow: '0 10px 30px rgba(0,0,0,0.03)', border: '1px solid #E2E8F0' }}>
-            <div style={{ fontSize: '12px', fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>Avg Kinematic Form</div>
-            <div style={{ fontSize: '32px', fontWeight: 900, color: '#059669', marginTop: '6px' }}>{overallAvgScore}%</div>
-            <div style={{ fontSize: '12px', color: '#64748B', marginTop: '4px' }}>Across all prescribed exercises</div>
+          <div style={{ backgroundColor: '#FFF', borderRadius: '18px', padding: '20px', boxShadow: '0 10px 30px rgba(0,0,0,0.03)', border: '1px solid #E2E8F0' }}>
+            <div style={{ fontSize: '11px', fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>Avg Kinematic Form</div>
+            <div style={{ fontSize: '28px', fontWeight: 900, color: '#059669', marginTop: '4px' }}>{overallAvgScore}%</div>
+            <div style={{ fontSize: '11px', color: '#64748B', marginTop: '2px' }}>Prescribed routines</div>
           </div>
 
-          <div style={{ backgroundColor: '#FFF', borderRadius: '20px', padding: '24px', boxShadow: '0 10px 30px rgba(0,0,0,0.03)', border: '1px solid #E2E8F0' }}>
-            <div style={{ fontSize: '12px', fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>Monitored Sessions</div>
-            <div style={{ fontSize: '32px', fontWeight: 900, color: 'var(--accent-color)', marginTop: '6px' }}>{totalMonitoredSessions}</div>
-            <div style={{ fontSize: '12px', color: '#64748B', marginTop: '4px' }}>Total rehabilitation workouts</div>
+          <div style={{ backgroundColor: '#FFF', borderRadius: '18px', padding: '20px', boxShadow: '0 10px 30px rgba(0,0,0,0.03)', border: '1px solid #E2E8F0' }}>
+            <div style={{ fontSize: '11px', fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>Monitored Sessions</div>
+            <div style={{ fontSize: '28px', fontWeight: 900, color: 'var(--accent-color)', marginTop: '4px' }}>{totalMonitoredSessions}</div>
+            <div style={{ fontSize: '11px', color: '#64748B', marginTop: '2px' }}>Total workouts logged</div>
           </div>
         </div>
 
         {/* Section Navigation Tabs & Search */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px', marginBottom: '25px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', marginBottom: '22px' }}>
           
           {/* Navigation Tabs */}
-          <div style={{ display: 'flex', gap: '10px' }}>
+          <div className="scroll-touch-x" style={{ display: 'flex', gap: '8px', maxWidth: '100%', paddingBottom: '4px' }}>
             <button
               onClick={() => setActiveTab('patients')}
               style={{
-                padding: '10px 22px',
+                padding: '9px 18px',
                 borderRadius: '50px',
                 border: activeTab === 'patients' ? '1px solid #059669' : '1px solid #E2E8F0',
                 backgroundColor: activeTab === 'patients' ? '#059669' : '#FFFFFF',
                 color: activeTab === 'patients' ? '#FFFFFF' : '#475569',
                 fontWeight: 800,
-                fontSize: '13px',
+                fontSize: '12px',
                 cursor: 'pointer',
+                whiteSpace: 'nowrap',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px',
-                transition: 'all 0.2s'
+                gap: '6px',
+                transition: 'all 0.2s',
+                touchAction: 'manipulation'
               }}
             >
-              <Users size={16} /> Prescribed Patient Roster ({patients.length})
+              <Users size={15} /> Prescribed Roster ({patients.length})
             </button>
 
             <button
               onClick={() => setActiveTab('requests')}
               style={{
-                padding: '10px 22px',
+                padding: '9px 18px',
                 borderRadius: '50px',
                 border: activeTab === 'requests' ? '1px solid #F59E0B' : '1px solid #E2E8F0',
                 backgroundColor: activeTab === 'requests' ? '#F59E0B' : '#FFFFFF',
                 color: activeTab === 'requests' ? '#FFFFFF' : '#475569',
                 fontWeight: 800,
-                fontSize: '13px',
+                fontSize: '12px',
                 cursor: 'pointer',
+                whiteSpace: 'nowrap',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px',
+                gap: '6px',
                 position: 'relative',
-                transition: 'all 0.2s'
+                transition: 'all 0.2s',
+                touchAction: 'manipulation'
               }}
             >
-              <UserPlus size={16} /> Incoming Requests
+              <UserPlus size={15} /> Incoming Requests
               {pendingRequests.length > 0 && (
                 <span style={{ 
                   backgroundColor: activeTab === 'requests' ? '#FFFFFF' : '#EF4444', 
@@ -544,8 +548,9 @@ const DoctorPortal = ({ onSwitchToPatientView }) => {
                 )}
               </div>
             ) : (
-              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-                <thead>
+              <div className="table-responsive">
+                <table style={{ width: '100%', minWidth: '720px', borderCollapse: 'collapse', textAlign: 'left' }}>
+                  <thead>
                   <tr style={{ backgroundColor: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
                     <th style={{ padding: '16px 24px', fontSize: '12px', fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>Patient</th>
                     <th style={{ padding: '16px 24px', fontSize: '12px', fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>Program / Protocol</th>
@@ -624,6 +629,7 @@ const DoctorPortal = ({ onSwitchToPatientView }) => {
                   ))}
                 </tbody>
               </table>
+              </div>
             )}
           </div>
         )}
@@ -640,77 +646,79 @@ const DoctorPortal = ({ onSwitchToPatientView }) => {
                 </p>
               </div>
             ) : (
-              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-                <thead>
-                  <tr style={{ backgroundColor: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
-                    <th style={{ padding: '16px 24px', fontSize: '12px', fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>Patient Name</th>
-                    <th style={{ padding: '16px 24px', fontSize: '12px', fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>Contact Email</th>
-                    <th style={{ padding: '16px 24px', fontSize: '12px', fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>Request Date</th>
-                    <th style={{ padding: '16px 24px', fontSize: '12px', fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>Status</th>
-                    <th style={{ padding: '16px 24px', fontSize: '12px', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', textAlign: 'right' }}>Authorization Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {pendingRequests.map((req) => (
-                    <tr key={req.id} style={{ borderBottom: '1px solid #F1F5F9' }}>
-                      <td style={{ padding: '18px 24px', fontWeight: 800, fontSize: '14px', color: '#111' }}>
-                        {req.patient?.name || `Patient #${req.patient_id}`}
-                      </td>
-                      <td style={{ padding: '18px 24px', fontSize: '13px', color: '#64748B', fontWeight: 600 }}>
-                        {req.patient?.email || '—'}
-                      </td>
-                      <td style={{ padding: '18px 24px', fontSize: '13px', color: '#64748B' }}>
-                        {req.created_at ? new Date(req.created_at).toLocaleDateString() : 'Today'}
-                      </td>
-                      <td style={{ padding: '18px 24px' }}>
-                        <span style={{ backgroundColor: 'rgba(245, 158, 11, 0.1)', color: '#D97706', fontSize: '12px', fontWeight: 800, padding: '4px 10px', borderRadius: '12px' }}>
-                          Pending Review
-                        </span>
-                      </td>
-                      <td style={{ padding: '18px 24px', textAlign: 'right' }}>
-                        <div style={{ display: 'inline-flex', gap: '8px' }}>
-                          <button
-                            disabled={actionLoading === req.id}
-                            onClick={() => handleApproveRequest(req.id)}
-                            style={{
-                              padding: '8px 18px',
-                              borderRadius: '8px',
-                              border: 'none',
-                              backgroundColor: '#059669',
-                              color: '#FFF',
-                              fontSize: '12px',
-                              fontWeight: 800,
-                              cursor: actionLoading === req.id ? 'not-allowed' : 'pointer',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '6px'
-                            }}
-                          >
-                            <Check size={14} /> Accept & Authorize
-                          </button>
-
-                          <button
-                            disabled={actionLoading === req.id}
-                            onClick={() => handleRejectRequest(req.id)}
-                            style={{
-                              padding: '8px 14px',
-                              borderRadius: '8px',
-                              border: '1px solid #E2E8F0',
-                              backgroundColor: '#FFF',
-                              color: '#EF4444',
-                              fontSize: '12px',
-                              fontWeight: 700,
-                              cursor: actionLoading === req.id ? 'not-allowed' : 'pointer'
-                            }}
-                          >
-                            Decline
-                          </button>
-                        </div>
-                      </td>
+              <div className="table-responsive">
+                <table style={{ width: '100%', minWidth: '650px', borderCollapse: 'collapse', textAlign: 'left' }}>
+                  <thead>
+                    <tr style={{ backgroundColor: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
+                      <th style={{ padding: '16px 24px', fontSize: '12px', fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>Patient Name</th>
+                      <th style={{ padding: '16px 24px', fontSize: '12px', fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>Contact Email</th>
+                      <th style={{ padding: '16px 24px', fontSize: '12px', fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>Request Date</th>
+                      <th style={{ padding: '16px 24px', fontSize: '12px', fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>Status</th>
+                      <th style={{ padding: '16px 24px', fontSize: '12px', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', textAlign: 'right' }}>Authorization Action</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {pendingRequests.map((req) => (
+                      <tr key={req.id} style={{ borderBottom: '1px solid #F1F5F9' }}>
+                        <td style={{ padding: '18px 24px', fontWeight: 800, fontSize: '14px', color: '#111' }}>
+                          {req.patient?.name || `Patient #${req.patient_id}`}
+                        </td>
+                        <td style={{ padding: '18px 24px', fontSize: '13px', color: '#64748B', fontWeight: 600 }}>
+                          {req.patient?.email || '—'}
+                        </td>
+                        <td style={{ padding: '18px 24px', fontSize: '13px', color: '#64748B' }}>
+                          {req.created_at ? new Date(req.created_at).toLocaleDateString() : 'Today'}
+                        </td>
+                        <td style={{ padding: '18px 24px' }}>
+                          <span style={{ backgroundColor: 'rgba(245, 158, 11, 0.1)', color: '#D97706', fontSize: '12px', fontWeight: 800, padding: '4px 10px', borderRadius: '12px' }}>
+                            Pending Review
+                          </span>
+                        </td>
+                        <td style={{ padding: '18px 24px', textAlign: 'right' }}>
+                          <div style={{ display: 'inline-flex', gap: '8px' }}>
+                            <button
+                              disabled={actionLoading === req.id}
+                              onClick={() => handleApproveRequest(req.id)}
+                              style={{
+                                padding: '8px 18px',
+                                borderRadius: '8px',
+                                border: 'none',
+                                backgroundColor: '#059669',
+                                color: '#FFF',
+                                fontSize: '12px',
+                                fontWeight: 800,
+                                cursor: actionLoading === req.id ? 'not-allowed' : 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '6px'
+                              }}
+                            >
+                              <Check size={14} /> Accept & Authorize
+                            </button>
+
+                            <button
+                              disabled={actionLoading === req.id}
+                              onClick={() => handleRejectRequest(req.id)}
+                              style={{
+                                padding: '8px 14px',
+                                borderRadius: '8px',
+                                border: '1px solid #E2E8F0',
+                                backgroundColor: '#FFF',
+                                color: '#EF4444',
+                                fontSize: '12px',
+                                fontWeight: 700,
+                                cursor: actionLoading === req.id ? 'not-allowed' : 'pointer'
+                              }}
+                            >
+                              Decline
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
           </div>
         )}
@@ -743,7 +751,7 @@ const DoctorPortal = ({ onSwitchToPatientView }) => {
                 borderRadius: '28px',
                 boxShadow: '0 25px 60px rgba(0,0,0,0.2)',
                 overflowY: 'auto',
-                padding: '36px'
+                padding: 'clamp(18px, 4vw, 36px)'
               }}
             >
               <button
@@ -757,7 +765,7 @@ const DoctorPortal = ({ onSwitchToPatientView }) => {
                 <ShieldCheck size={18} /> AUTHORIZED PATIENT RECOVERY RECORD
               </div>
 
-              <h2 style={{ fontSize: '28px', fontWeight: 900, color: '#111', margin: '0 0 4px 0' }}>
+              <h2 style={{ fontSize: 'clamp(22px, 4vw, 28px)', fontWeight: 900, color: '#111', margin: '0 0 4px 0' }}>
                 {selectedPatient.name}
               </h2>
               <p style={{ fontSize: '14px', color: '#64748B', margin: '0 0 25px 0' }}>
@@ -772,7 +780,7 @@ const DoctorPortal = ({ onSwitchToPatientView }) => {
               ) : (
                 <>
                   {/* Radar Symmetry Chart & Performance Highlights */}
-                  <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '20px', marginBottom: '28px', alignItems: 'center' }}>
+                  <div className="responsive-grid-2col" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '20px', marginBottom: '28px', alignItems: 'center' }}>
                     <div style={{ height: '240px', backgroundColor: '#F8FAFC', borderRadius: '20px', padding: '15px', border: '1px solid #E2E8F0' }}>
                       <div style={{ fontSize: '12px', fontWeight: 800, color: '#64748B', textAlign: 'center', marginBottom: '4px' }}>
                         Kinematic Joint Balance Radar
@@ -818,34 +826,36 @@ const DoctorPortal = ({ onSwitchToPatientView }) => {
                     
                     <div style={{ border: '1px solid #E2E8F0', borderRadius: '16px', overflow: 'hidden' }}>
                       {patientDetails?.history && patientDetails.history.length > 0 ? (
-                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', textAlign: 'left' }}>
-                          <thead>
-                            <tr style={{ backgroundColor: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
-                              <th style={{ padding: '12px 18px', fontWeight: 800, color: '#64748B' }}>Date</th>
-                              <th style={{ padding: '12px 18px', fontWeight: 800, color: '#64748B' }}>Exercise</th>
-                              <th style={{ padding: '12px 18px', fontWeight: 800, color: '#64748B' }}>Reps</th>
-                              <th style={{ padding: '12px 18px', fontWeight: 800, color: '#64748B' }}>Form Score</th>
-                              <th style={{ padding: '12px 18px', fontWeight: 800, color: '#64748B' }}>AI Form Feedback</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {patientDetails.history.map((s, idx) => (
-                              <tr key={s.session_id || idx} style={{ borderBottom: '1px solid #F1F5F9' }}>
-                                <td style={{ padding: '12px 18px', fontWeight: 600 }}>{s.date ? s.date.split('T')[0] : '—'}</td>
-                                <td style={{ padding: '12px 18px', fontWeight: 700 }}>{s.exercise_name || s.exercise_code || 'Squat'}</td>
-                                <td style={{ padding: '12px 18px' }}>{s.repetitions || 0} reps</td>
-                                <td style={{ padding: '12px 18px' }}>
-                                  <span style={{ backgroundColor: (s.score || 90) >= 90 ? 'rgba(16,185,129,0.1)' : 'rgba(245,158,11,0.1)', color: (s.score || 90) >= 90 ? '#059669' : '#D97706', padding: '3px 8px', borderRadius: '10px', fontWeight: 800, fontSize: '12px' }}>
-                                    {s.score != null ? `${Math.round(s.score)}%` : '95%'}
-                                  </span>
-                                </td>
-                                <td style={{ padding: '12px 18px', color: '#64748B', fontSize: '12px' }}>
-                                  {s.feedback || 'Optimal joint alignment maintained throughout movement.'}
-                                </td>
+                        <div className="table-responsive">
+                          <table style={{ width: '100%', minWidth: '550px', borderCollapse: 'collapse', fontSize: '13px', textAlign: 'left' }}>
+                            <thead>
+                              <tr style={{ backgroundColor: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
+                                <th style={{ padding: '12px 18px', fontWeight: 800, color: '#64748B' }}>Date</th>
+                                <th style={{ padding: '12px 18px', fontWeight: 800, color: '#64748B' }}>Exercise</th>
+                                <th style={{ padding: '12px 18px', fontWeight: 800, color: '#64748B' }}>Reps</th>
+                                <th style={{ padding: '12px 18px', fontWeight: 800, color: '#64748B' }}>Form Score</th>
+                                <th style={{ padding: '12px 18px', fontWeight: 800, color: '#64748B' }}>AI Form Feedback</th>
                               </tr>
-                            ))}
-                          </tbody>
-                        </table>
+                            </thead>
+                            <tbody>
+                              {patientDetails.history.map((s, idx) => (
+                                <tr key={s.session_id || idx} style={{ borderBottom: '1px solid #F1F5F9' }}>
+                                  <td style={{ padding: '12px 18px', fontWeight: 600 }}>{s.date ? s.date.split('T')[0] : '—'}</td>
+                                  <td style={{ padding: '12px 18px', fontWeight: 700 }}>{s.exercise_name || s.exercise_code || 'Squat'}</td>
+                                  <td style={{ padding: '12px 18px' }}>{s.repetitions || 0} reps</td>
+                                  <td style={{ padding: '12px 18px' }}>
+                                    <span style={{ backgroundColor: (s.score || 90) >= 90 ? 'rgba(16,185,129,0.1)' : 'rgba(245,158,11,0.1)', color: (s.score || 90) >= 90 ? '#059669' : '#D97706', padding: '3px 8px', borderRadius: '10px', fontWeight: 800, fontSize: '12px' }}>
+                                      {s.score != null ? `${Math.round(s.score)}%` : '95%'}
+                                    </span>
+                                  </td>
+                                  <td style={{ padding: '12px 18px', color: '#64748B', fontSize: '12px' }}>
+                                    {s.feedback || 'Optimal joint alignment maintained throughout movement.'}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
                       ) : (
                         <div style={{ padding: '24px', textAlign: 'center', color: '#94A3B8', fontSize: '13px' }}>
                           No recorded sessions logged yet for this patient.
@@ -886,10 +896,10 @@ const DoctorPortal = ({ onSwitchToPatientView }) => {
                   </div>
 
                   {/* Modal Action Buttons */}
-                  <div style={{ display: 'flex', gap: '12px' }}>
+                  <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                     <button
                       onClick={() => setSelectedPatient(null)}
-                      style={{ flex: 1, padding: '14px', borderRadius: '12px', border: '1px solid #E2E8F0', backgroundColor: '#FFF', fontWeight: 700, fontSize: '13px', cursor: 'pointer' }}
+                      style={{ flex: '1 1 140px', padding: '14px', borderRadius: '12px', border: '1px solid #E2E8F0', backgroundColor: '#FFF', fontWeight: 700, fontSize: '13px', cursor: 'pointer' }}
                     >
                       Close Window
                     </button>
@@ -900,7 +910,7 @@ const DoctorPortal = ({ onSwitchToPatientView }) => {
                         showNotification(`Clinical assessment updated for ${selectedPatient.name}`);
                       }}
                       style={{
-                        flex: 2,
+                        flex: '2 1 220px',
                         padding: '14px',
                         borderRadius: '12px',
                         backgroundColor: '#059669',

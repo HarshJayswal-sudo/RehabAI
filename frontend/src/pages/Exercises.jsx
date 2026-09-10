@@ -21,37 +21,37 @@ const Exercises = ({ onSelectExercise }) => {
   });
 
   return (
-    <div style={{ position: 'relative', minHeight: '100vh', backgroundColor: '#F8F9FA', paddingTop: '130px', paddingBottom: '80px', overflowX: 'hidden' }}>
+    <div style={{ position: 'relative', minHeight: '100vh', backgroundColor: '#F8F9FA', paddingTop: '95px', paddingBottom: '70px', overflowX: 'hidden' }}>
       
       {/* Background Ambience */}
       <div style={{ position: 'absolute', left: '-5%', top: '10%', width: '400px', height: '600px', backgroundImage: `url(${bgLeft})`, backgroundRepeat: 'no-repeat', backgroundSize: 'contain', opacity: 0.35, pointerEvents: 'none', zIndex: 0 }} />
       <div style={{ position: 'absolute', right: '-5%', bottom: '5%', width: '400px', height: '500px', backgroundImage: `url(${bgRight})`, backgroundRepeat: 'no-repeat', backgroundSize: 'contain', opacity: 0.3, pointerEvents: 'none', zIndex: 0 }} />
 
-      <div className="container" style={{ position: 'relative', zIndex: 1, maxWidth: '1200px', margin: '0 auto', padding: '0 20px' }}>
+      <div className="container" style={{ position: 'relative', zIndex: 1, maxWidth: '1200px', margin: '0 auto', padding: '0 16px' }}>
         
         {/* Header Title Section */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          style={{ marginBottom: '40px' }}
+          style={{ marginBottom: '30px' }}
         >
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', backgroundColor: 'var(--accent-light)', padding: '6px 16px', borderRadius: '50px', color: 'var(--accent-color)', fontWeight: 700, fontSize: '13px', marginBottom: '15px' }}>
-            <Sparkles size={16} /> CLINICAL EXERCISE LIBRARY
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', backgroundColor: 'var(--accent-light)', padding: '6px 16px', borderRadius: '50px', color: 'var(--accent-color)', fontWeight: 700, fontSize: '12px', marginBottom: '12px' }}>
+            <Sparkles size={15} /> CLINICAL EXERCISE LIBRARY
           </div>
-          <h1 style={{ fontSize: '38px', fontWeight: 900, color: '#111', margin: '0 0 12px 0', letterSpacing: '-1px' }}>
+          <h1 style={{ fontSize: '32px', fontWeight: 900, color: '#111', margin: '0 0 10px 0', letterSpacing: '-0.8px' }}>
             Rehabilitation Movements
           </h1>
-          <p style={{ fontSize: '16px', color: '#64748B', maxWidth: '700px', margin: 0, lineHeight: 1.6 }}>
+          <p style={{ fontSize: '15px', color: '#64748B', maxWidth: '700px', margin: 0, lineHeight: 1.6 }}>
             Select an AI-guided exercise below. Each movement uses real-time joint-angle kinematics and computer vision to ensure optimal recovery and form.
           </p>
         </motion.div>
 
         {/* Filter and Search Bar */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px', marginBottom: '40px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', marginBottom: '30px' }}>
           
-          {/* Category Pills */}
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+          {/* Category Pills (Touch-scrollable on mobile) */}
+          <div className="scroll-touch-x" style={{ display: 'flex', gap: '8px', maxWidth: '100%', paddingBottom: '4px' }}>
             {CATEGORIES.map(cat => {
               const isSelected = selectedCategory === cat;
               return (
@@ -59,16 +59,18 @@ const Exercises = ({ onSelectExercise }) => {
                   key={cat}
                   onClick={() => setSelectedCategory(cat)}
                   style={{
-                    padding: '10px 22px',
+                    padding: '8px 18px',
                     borderRadius: '50px',
                     border: isSelected ? '1px solid var(--accent-color)' : '1px solid #E2E8F0',
                     backgroundColor: isSelected ? 'var(--accent-color)' : '#FFFFFF',
                     color: isSelected ? '#FFFFFF' : '#475569',
                     fontWeight: 700,
-                    fontSize: '13px',
+                    fontSize: '12px',
                     cursor: 'pointer',
+                    whiteSpace: 'nowrap',
                     transition: 'all 0.2s ease',
-                    boxShadow: isSelected ? '0 8px 20px rgba(100,114,217,0.25)' : 'none'
+                    boxShadow: isSelected ? '0 8px 20px rgba(100,114,217,0.25)' : 'none',
+                    touchAction: 'manipulation'
                   }}
                 >
                   {cat}
@@ -78,8 +80,8 @@ const Exercises = ({ onSelectExercise }) => {
           </div>
 
           {/* Search Box */}
-          <div style={{ position: 'relative', minWidth: '280px' }}>
-            <Search size={18} color="#94A3B8" style={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', left: '16px' }} />
+          <div style={{ position: 'relative', flex: '1 1 240px', minWidth: '220px' }}>
+            <Search size={16} color="#94A3B8" style={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', left: '16px' }} />
             <input
               type="text"
               placeholder="Search exercises, muscles..."
@@ -87,11 +89,11 @@ const Exercises = ({ onSelectExercise }) => {
               onChange={(e) => setSearchQuery(e.target.value)}
               style={{
                 width: '100%',
-                padding: '12px 16px 12px 46px',
+                padding: '11px 16px 11px 44px',
                 borderRadius: '50px',
                 border: '1px solid #E2E8F0',
                 backgroundColor: '#FFFFFF',
-                fontSize: '14px',
+                fontSize: '13px',
                 outline: 'none',
                 transition: 'all 0.2s',
                 boxShadow: '0 4px 15px rgba(0,0,0,0.03)'
@@ -103,7 +105,7 @@ const Exercises = ({ onSelectExercise }) => {
         </div>
 
         {/* Exercises Grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '30px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '22px' }}>
           {filteredExercises.map((exercise, index) => (
             <motion.div
               key={exercise.id}
@@ -255,66 +257,66 @@ const Exercises = ({ onSelectExercise }) => {
                 maxWidth: '700px',
                 maxHeight: '90vh',
                 backgroundColor: '#FFFFFF',
-                borderRadius: '28px',
+                borderRadius: '24px',
                 boxShadow: '0 25px 60px rgba(0,0,0,0.2)',
                 overflowY: 'auto',
-                padding: '40px'
+                padding: '28px 20px'
               }}
             >
               {/* Close Button */}
               <button
                 onClick={() => setActiveModalExercise(null)}
-                style={{ position: 'absolute', top: '24px', right: '24px', backgroundColor: '#F1F5F9', border: 'none', width: '36px', height: '36px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#64748B' }}
+                style={{ position: 'absolute', top: '20px', right: '20px', backgroundColor: '#F1F5F9', border: 'none', width: '36px', height: '36px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#64748B' }}
               >
                 <X size={18} />
               </button>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--accent-color)', fontWeight: 800, fontSize: '13px', marginBottom: '8px' }}>
-                <Activity size={18} /> {activeModalExercise.category.toUpperCase()}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--accent-color)', fontWeight: 800, fontSize: '12px', marginBottom: '8px' }}>
+                <Activity size={16} /> {activeModalExercise.category.toUpperCase()}
               </div>
 
-              <h2 style={{ fontSize: '28px', fontWeight: 900, color: '#111', margin: '0 0 15px 0' }}>
+              <h2 style={{ fontSize: '24px', fontWeight: 900, color: '#111', margin: '0 0 12px 0' }}>
                 {activeModalExercise.name}
               </h2>
-              <p style={{ fontSize: '15px', color: '#64748B', lineHeight: 1.6, marginBottom: '30px' }}>
+              <p style={{ fontSize: '14px', color: '#64748B', lineHeight: 1.6, marginBottom: '24px' }}>
                 {activeModalExercise.description}
               </p>
 
               {/* Angle & Specs Strip */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '15px', padding: '20px', backgroundColor: '#F8FAFC', borderRadius: '16px', marginBottom: '30px', border: '1px solid #E2E8F0' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: '12px', padding: '16px', backgroundColor: '#F8FAFC', borderRadius: '16px', marginBottom: '24px', border: '1px solid #E2E8F0' }}>
                 <div>
-                  <div style={{ fontSize: '12px', color: '#64748B', fontWeight: 600 }}>Target Joint</div>
-                  <div style={{ fontSize: '16px', fontWeight: 800, color: '#111', marginTop: '2px' }}>{activeModalExercise.primaryJoint}</div>
+                  <div style={{ fontSize: '11px', color: '#64748B', fontWeight: 600 }}>Target Joint</div>
+                  <div style={{ fontSize: '15px', fontWeight: 800, color: '#111', marginTop: '2px' }}>{activeModalExercise.primaryJoint}</div>
                 </div>
                 <div>
-                  <div style={{ fontSize: '12px', color: '#64748B', fontWeight: 600 }}>Required Flexion</div>
-                  <div style={{ fontSize: '16px', fontWeight: 800, color: 'var(--accent-color)', marginTop: '2px' }}>{activeModalExercise.idealAngle}</div>
+                  <div style={{ fontSize: '11px', color: '#64748B', fontWeight: 600 }}>Required Flexion</div>
+                  <div style={{ fontSize: '15px', fontWeight: 800, color: 'var(--accent-color)', marginTop: '2px' }}>{activeModalExercise.idealAngle}</div>
                 </div>
                 <div>
-                  <div style={{ fontSize: '12px', color: '#64748B', fontWeight: 600 }}>Difficulty</div>
-                  <div style={{ fontSize: '16px', fontWeight: 800, color: '#10B981', marginTop: '2px' }}>{activeModalExercise.difficulty}</div>
+                  <div style={{ fontSize: '11px', color: '#64748B', fontWeight: 600 }}>Difficulty</div>
+                  <div style={{ fontSize: '15px', fontWeight: 800, color: '#10B981', marginTop: '2px' }}>{activeModalExercise.difficulty}</div>
                 </div>
               </div>
 
               {/* Instructions */}
-              <div style={{ marginBottom: '30px' }}>
-                <h4 style={{ fontSize: '16px', fontWeight: 800, color: '#111', marginBottom: '15px' }}>
+              <div style={{ marginBottom: '24px' }}>
+                <h4 style={{ fontSize: '15px', fontWeight: 800, color: '#111', marginBottom: '12px' }}>
                   Step-by-Step Instructions
                 </h4>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   {activeModalExercise.instructions.map((step, idx) => (
-                    <div key={idx} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-                      <div style={{ width: '24px', height: '24px', borderRadius: '50%', backgroundColor: 'var(--accent-light)', color: 'var(--accent-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 800, flexShrink: 0, marginTop: '2px' }}>
+                    <div key={idx} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+                      <div style={{ width: '22px', height: '22px', borderRadius: '50%', backgroundColor: 'var(--accent-light)', color: 'var(--accent-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 800, flexShrink: 0, marginTop: '2px' }}>
                         {idx + 1}
                       </div>
-                      <p style={{ margin: 0, fontSize: '14px', color: '#475569', lineHeight: 1.6 }}>{step}</p>
+                      <p style={{ margin: 0, fontSize: '13px', color: '#475569', lineHeight: 1.6 }}>{step}</p>
                     </div>
                   ))}
                 </div>
               </div>
 
               {/* Form Tips & Camera Guidance */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '35px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '28px' }}>
                 <div style={{ padding: '16px', backgroundColor: 'rgba(16, 185, 129, 0.08)', borderRadius: '16px', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#059669', fontWeight: 800, fontSize: '13px', marginBottom: '8px' }}>
                     <CheckCircle2 size={16} /> KEY FORM CUES

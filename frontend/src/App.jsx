@@ -9,6 +9,7 @@ import DoctorPortal from './pages/DoctorPortal';
 import Auth from './pages/Auth';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
+import ChatWidget from './components/layout/ChatWidget';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { EXERCISES } from './data/exercises';
 import './App.css';
@@ -164,6 +165,7 @@ function AppContent() {
       </main>
 
       <Footer />
+      <ChatWidget />
     </div>
   );
 }
