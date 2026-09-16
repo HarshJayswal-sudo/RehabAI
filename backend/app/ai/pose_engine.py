@@ -1,31 +1,25 @@
 """
 pose_engine.py
 --------------
-Modern MediaPipe Pose extraction using Google Tasks API with graceful fallbacks.
+Modern YOLOv8-Pose extraction with graceful fallbacks.
 """
 import os
 import base64
 import cv2
 import numpy as np
+import torch
 from typing import Dict, Any, Optional, Tuple, List
+from ultralytics import YOLO
 
-try:
-    import mediapipe as mp
-    from mediapipe.tasks.python.vision import PoseLandmarker, PoseLandmarkerOptions, RunningMode
-    from mediapipe.tasks.python import BaseOptions
-    HAS_MEDIAPIPE = True
-except Exception:
-    HAS_MEDIAPIPE = False
-
-# Key landmark indices in MediaPipe Pose
+# YOLOv8-Pose COCO-17 keypoints
 LM = {
     "nose": 0,
-    "l_shoulder": 11, "r_shoulder": 12,
-    "l_elbow": 13, "r_elbow": 14,
-    "l_wrist": 15, "r_wrist": 16,
-    "l_hip": 23, "r_hip": 24,
-    "l_knee": 25, "r_knee": 26,
-    "l_ankle": 27, "r_ankle": 28,
+    "l_shoulder": 5, "r_shoulder": 6,
+    "l_elbow": 7, "r_elbow": 8,
+    "l_wrist": 9, "r_wrist": 10,
+    "l_hip": 11, "r_hip": 12,
+    "l_knee": 13, "r_knee": 14,
+    "l_ankle": 15, "r_ankle": 16,
 }
 
 VISIBILITY_THRESHOLD = 0.5
@@ -56,51 +50,8 @@ def calculate_angle(a: Tuple[float, float], b: Tuple[float, float], c: Tuple[flo
 
 class PoseExtractor:
     def __init__(self, model_asset_path: Optional[str] = None):
-        self.landmarker = None
-        self.legacy_pose = None
-
-        if not HAS_MEDIAPIPE:
-            return
-
-        # 1. Look for .task model file
-        candidate_paths = [
-            model_asset_path,
-            os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "models", "pose_landmarker_full.task")),
-            os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "backend", "models", "pose_landmarker_full.task")),
-            os.path.abspath("models/pose_landmarker_full.task"),
-            os.path.abspath("backend/models/pose_landmarker_full.task"),
-        ]
-
-        found_task_path = None
-        for p in candidate_paths:
-            if p and os.path.exists(p):
-                found_task_path = p
-                break
-
-        if found_task_path:
-            try:
-                options = PoseLandmarkerOptions(
-                    base_options=BaseOptions(model_asset_path=found_task_path),
-                    running_mode=RunningMode.IMAGE,
-                    min_pose_detection_confidence=0.5,
-                    min_pose_presence_confidence=0.5,
-                    min_tracking_confidence=0.5,
-                )
-                self.landmarker = PoseLandmarker.create_from_options(options)
-            except Exception:
-                self.landmarker = None
-
-        # 2. Fallback to classic solutions.pose if available
-        if not self.landmarker and hasattr(mp, "solutions") and hasattr(mp.solutions, "pose"):
-            try:
-                self.legacy_pose = mp.solutions.pose.Pose(
-                    static_image_mode=False,
-                    model_complexity=1,
-                    min_detection_confidence=0.5,
-                    min_tracking_confidence=0.5,
-                )
-            except Exception:
-                self.legacy_pose = None
+        self.device = "cpu"
+        self.model = YOLO("yolov8n-pose.pt")
 
     def process_frame(self, frame: np.ndarray) -> Dict[str, Any]:
         """
@@ -109,39 +60,27 @@ class PoseExtractor:
         if frame is None:
             return {"pose_detected": False, "reason": "empty_frame"}
 
-        # Process with Tasks Landmarker API
-        if self.landmarker:
-            try:
-                rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb_frame)
-                detection_result = self.landmarker.detect(mp_image)
+        try:
+            results = self.model(frame, device=self.device, verbose=False)
+            if not results or len(results[0].keypoints) == 0:
+                return {"pose_detected": False, "reason": "no_person_detected"}
+                
+            keypoints = results[0].keypoints
+            if keypoints.xy is None or len(keypoints.xy) == 0 or keypoints.xy.numel() == 0:
+                return {"pose_detected": False, "reason": "no_person_detected"}
+                
+            kp = keypoints.xy[0].cpu().numpy()
+            conf = keypoints.conf[0].cpu().numpy()
+            h, w = frame.shape[:2]
 
-                if not detection_result.pose_landmarks or len(detection_result.pose_landmarks) == 0:
-                    return {"pose_detected": False, "reason": "no_person_detected"}
+            return self._compute_metrics_from_landmarks(kp, conf, h, w)
+        except Exception as e:
+            return {"pose_detected": False, "reason": str(e)}
 
-                lm = detection_result.pose_landmarks[0]
-                return self._compute_metrics_from_landmarks(lm)
-            except Exception as e:
-                return {"pose_detected": False, "reason": str(e)}
-
-        # Process with Legacy MediaPipe API
-        if self.legacy_pose:
-            try:
-                rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                results = self.legacy_pose.process(rgb_frame)
-                if not results.pose_landmarks:
-                    return {"pose_detected": False, "reason": "no_person_detected"}
-                lm = results.pose_landmarks.landmark
-                return self._compute_metrics_from_landmarks(lm)
-            except Exception as e:
-                return {"pose_detected": False, "reason": str(e)}
-
-        return {"pose_detected": False, "reason": "mediapipe_not_initialized"}
-
-    def _compute_metrics_from_landmarks(self, lm: Any) -> Dict[str, Any]:
+    def _compute_metrics_from_landmarks(self, kp: np.ndarray, conf: np.ndarray, h: int, w: int) -> Dict[str, Any]:
         def pt(name: str) -> Tuple[float, float]:
-            p = lm[LM[name]]
-            return (p.x, p.y)
+            p = kp[LM[name]]
+            return (float(p[0]), float(p[1]))
 
         # Joint angle calculations
         l_knee_angle = calculate_angle(pt("l_hip"), pt("l_knee"), pt("l_ankle"))
@@ -165,7 +104,6 @@ class PoseExtractor:
         knee_symmetry = max(0.0, min(100.0, round(100.0 - diff_knee, 1)))
 
         # Map snake_case landmark names to camelCase keys for the frontend canvas renderer.
-        # Session.jsx accesses landmarks as: lm.leftShoulder, lm.leftKnee, lm.rightHip, etc.
         CAMEL_MAP = {
             "nose":       "nose",
             "l_shoulder": "leftShoulder",
@@ -184,13 +122,13 @@ class PoseExtractor:
 
         landmarks_dict: Dict[str, Any] = {}
         for snake_name, idx in LM.items():
-            p = lm[idx]
-            vis = getattr(p, "visibility", 1.0)
+            p = kp[idx]
+            vis = conf[idx]
             camel_name = CAMEL_MAP.get(snake_name, snake_name)
             landmarks_dict[camel_name] = {
-                "x": round(float(p.x), 4),
-                "y": round(float(p.y), 4),
-                "visibility": round(float(vis if vis is not None else 1.0), 2),
+                "x": round(float(p[0] / w), 4) if w > 0 else 0.0,
+                "y": round(float(p[1] / h), 4) if h > 0 else 0.0,
+                "visibility": round(float(vis), 2),
             }
 
         return {
@@ -206,16 +144,6 @@ class PoseExtractor:
             "landmarks": landmarks_dict,
         }
 
-
     def close(self):
-        if self.landmarker and hasattr(self.landmarker, "close"):
-            try:
-                self.landmarker.close()
-            except Exception:
-                pass
-        if self.legacy_pose and hasattr(self.legacy_pose, "close"):
-            try:
-                self.legacy_pose.close()
-            except Exception:
-                pass
+        pass
 

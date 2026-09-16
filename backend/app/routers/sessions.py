@@ -138,10 +138,10 @@ def start_session(
         .first()
     )
     if active:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail=f"You already have an active session (id={active.id}). Complete or cancel it first.",
-        )
+        # Resolve zombie session by marking it abandoned
+        active.status = SessionStatus.COMPLETED
+        active.duration_seconds = 0.0
+        db.commit()
 
     session = RehabilitationSession(
         patient_id=current_user.id,
