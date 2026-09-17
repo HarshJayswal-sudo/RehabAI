@@ -41,6 +41,9 @@ async def websocket_session_endpoint(websocket: WebSocket, exercise_code: Option
                 continue
 
             msg_type = payload.get("type", "frame")
+            
+            if msg_type == "frame":
+                print(f"Received frame for {current_exercise}")
 
             # 1. Handle exercise switch
             requested_exercise = payload.get("exercise")
@@ -101,6 +104,8 @@ async def websocket_session_endpoint(websocket: WebSocket, exercise_code: Option
 
                 # Run pose detection
                 pose_data = pose_extractor.process_frame(frame)
+                
+                print(f"Frame dimensions: {frame.shape}")
 
                 if not pose_data.get("pose_detected", False):
                     await websocket.send_json({
@@ -118,6 +123,8 @@ async def websocket_session_endpoint(websocket: WebSocket, exercise_code: Option
                 # Update active analyzer
                 metrics = analyzer.update(pose_data)
                 metrics["landmarks"] = pose_data.get("landmarks", [])
+                
+                print(f"Outgoing angles/metrics: { {k: v for k, v in metrics.items() if k != 'landmarks'} }")
 
                 # Stream response back to client
                 await websocket.send_json(metrics)

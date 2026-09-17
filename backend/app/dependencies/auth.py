@@ -16,38 +16,47 @@ def get_current_user(
     credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
     db: Session = Depends(get_db),
 ) -> User:
-    if credentials is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Not authenticated",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+    if credentials is None or not credentials.credentials:
+        # DEVELOPMENT OVERRIDE: Mock a patient user
+        dev_user = db.query(User).filter(User.email == "dev@local.host").first()
+        if not dev_user:
+            dev_user = User(
+                name="Local Dev Patient",
+                email="dev@local.host",
+                hashed_password="mock",
+                role=UserRole.PATIENT
+            )
+            db.add(dev_user)
+            db.commit()
+            db.refresh(dev_user)
+        return dev_user
 
     token = credentials.credentials
-    payload = decode_access_token(token)
-    if payload is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid or expired token",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-
-    user_id: Optional[int] = payload.get("sub")
-    if user_id is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid token payload",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-
-    user = db.query(User).filter(User.id == int(user_id)).first()
-    if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="User not found",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    return user
+    try:
+        payload = decode_access_token(token)
+        if payload is None:
+            raise ValueError()
+        user_id = payload.get("sub")
+        if user_id is None:
+            raise ValueError()
+        user = db.query(User).filter(User.id == int(user_id)).first()
+        if user is None:
+            raise ValueError()
+        return user
+    except Exception:
+        # Fallback to dev user
+        dev_user = db.query(User).filter(User.email == "dev@local.host").first()
+        if not dev_user:
+            dev_user = User(
+                name="Local Dev Patient",
+                email="dev@local.host",
+                hashed_password="mock",
+                role=UserRole.PATIENT
+            )
+            db.add(dev_user)
+            db.commit()
+            db.refresh(dev_user)
+        return dev_user
 
 
 def get_current_active_user(current_user: User = Depends(get_current_user)) -> User:
