@@ -44,10 +44,10 @@ const FireBurst = () => {
   );
 };
 
-const Session = ({ selectedExercise: initialExercise, onEnd, onCancel }) => {
+const Session = ({ selectedExercise: initialExercise, initialPhase = 'active', onEnd, onCancel }) => {
   const activeExercise = initialExercise || EXERCISES[0];
   
-  const [phase, setPhase] = useState('calibrating'); // 'calibrating', 'countdown', 'active'
+  const [phase, setPhase] = useState(initialPhase); // 'calibrating', 'countdown', 'active'
   const [countdown, setCountdown] = useState(3);
   const [calibrationProgress, setCalibrationProgress] = useState(0);
 
@@ -85,7 +85,11 @@ const Session = ({ selectedExercise: initialExercise, onEnd, onCancel }) => {
     } catch (err) {
       console.error("Error accessing camera:", err);
       setCameraStatus('error');
-      setErrorMessage(err.message || 'Camera access denied or not available.');
+      setErrorMessage(
+        err.name === 'NotAllowedError' || err.message?.toLowerCase().includes('denied')
+          ? 'Camera access is required to analyze your movement. Please allow camera access and try again.'
+          : (err.message || 'Camera access denied or not available.')
+      );
     }
   };
 
@@ -462,6 +466,22 @@ const Session = ({ selectedExercise: initialExercise, onEnd, onCancel }) => {
               <p style={{ marginTop: '10px', fontSize: '14px', color: '#94A3B8', maxWidth: '400px', textAlign: 'center', lineHeight: 1.6 }}>
                 {errorMessage}
               </p>
+              <button
+                onClick={() => startCamera(facingMode)}
+                style={{
+                  marginTop: '16px',
+                  padding: '10px 24px',
+                  borderRadius: '50px',
+                  backgroundColor: 'var(--accent-color)',
+                  color: '#FFF',
+                  border: 'none',
+                  fontSize: '13px',
+                  fontWeight: 800,
+                  cursor: 'pointer'
+                }}
+              >
+                Try Again
+              </button>
             </div>
           )}
 

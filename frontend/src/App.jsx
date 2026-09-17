@@ -7,6 +7,7 @@ import Summary from './pages/Summary';
 import History from './pages/History';
 import DoctorPortal from './pages/DoctorPortal';
 import Auth from './pages/Auth';
+import ExerciseIntroduction from './components/exercise/ExerciseIntroduction';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import ChatWidget from './components/layout/ChatWidget';
@@ -62,7 +63,7 @@ function AppContent() {
 
   const startExercise = (exercise) => {
     setSelectedExercise(exercise || EXERCISES[0]);
-    navigateTo('session');
+    navigateTo('intro');
   };
 
   const startExerciseById = (exerciseId) => {
@@ -99,7 +100,7 @@ function AppContent() {
 
 
   const repeatCurrentSession = () => {
-    navigateTo('session');
+    navigateTo('intro');
   };
 
   return (
@@ -147,9 +148,18 @@ function AppContent() {
           />
         )}
 
+        {currentView === 'intro' && (
+          <ExerciseIntroduction
+            exercise={selectedExercise}
+            onBack={() => navigateTo('exercises')}
+            onStartAI={() => navigateTo('session')}
+          />
+        )}
+
         {currentView === 'session' && (
           <Session 
             selectedExercise={selectedExercise}
+            initialPhase="active"
             onEnd={finishSession} 
             onCancel={() => navigateTo('exercises')} 
           />
