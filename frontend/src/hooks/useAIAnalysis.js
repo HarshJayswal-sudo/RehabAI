@@ -124,8 +124,22 @@ export function useAIAnalysis(isActive, videoRef, selectedExercise) {
     }
 
     // Connect to Python Backend WebSocket
+      let wsUrl = import.meta.env.VITE_WS_URL;
+      if (!wsUrl) {
+        if (import.meta.env.VITE_API_URL) {
+          try {
+            const parsed = new URL(import.meta.env.VITE_API_URL);
+            const protocol = parsed.protocol === 'https:' ? 'wss:' : 'ws:';
+            wsUrl = `${protocol}//${parsed.host}/ws/session`;
+          } catch {
+            wsUrl = `ws://${window.location.hostname}:8000/ws/session`;
+          }
+        } else {
+          wsUrl = `ws://${window.location.hostname}:8000/ws/session`;
+        }
+      }
     try {
-      wsRef.current = new WebSocket(`ws://${window.location.hostname}:8000/ws/session`);
+      wsRef.current = new WebSocket(wsUrl);
 
       wsRef.current.onopen = () => {
         isWsConnectedRef.current = true;

@@ -28,18 +28,33 @@ ANALYZERS = {
 
 app = FastAPI(title="PhysioAssist API Server")
 
-# CORS
+# CORS configuration supporting local dev, Vercel deployments, and custom domains
+import os
+cors_env = os.environ.get("CORS_ORIGINS", "")
 origins = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
+    "http://localhost:3000",
 ]
+if cors_env:
+    origins.extend([o.strip() for o in cors_env.split(",") if o.strip()])
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
+    allow_origin_regex=r"https://.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.get("/")
+def root():
+    return {"status": "online", "service": "PhysioAssist AI API Server", "version": "1.0.0"}
+
+@app.get("/health")
+def health_check():
+    return {"status": "healthy"}
 
 def compute_symmetry(left: float, right: float) -> float:
     # Compute symmetry = max(0, 100 - abs(left - right) * (100/20))
@@ -325,4 +340,6 @@ def session_results(id: int, result: SessionResult):
 
 if __name__ == '__main__':
     import uvicorn
-    uvicorn.run(app, host='0.0.0.0', port=8000)
+    port = int(os.environ.get("PORT", 8000))
+    host = os.environ.get("HOST", "0.0.0.0")
+    uvicorn.run(app, host=host, port=port)
